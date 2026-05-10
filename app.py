@@ -245,7 +245,7 @@ def interface_page():
         try:
             from models.node_model import set_interface_mode
             set_interface_mode(model, interface_mode)
-            _model(model)
+            save_node_model(model)
             return redirect(url_for("squelch_page"))
         except ValueError as exc:
             error = str(exc)
