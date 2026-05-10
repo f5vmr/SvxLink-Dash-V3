@@ -171,11 +171,6 @@ def svxlink_status():
 # Routes
 # =========================================================
 
-@app.route("/", methods=["GET"])
-def index():
-    return redirect(url_for("setup"))
-
-
 @app.route("/setup", methods=["GET", "POST"])
 def setup():
     error = None
