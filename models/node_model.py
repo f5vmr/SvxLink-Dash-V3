@@ -136,7 +136,15 @@ DEFAULT_MODEL = {
             "ctcss_freq": None,
             "ctcss_tx": False,
         },
-
+        "echolink": {
+            "enabled": False,
+            "callsign": None,
+            "password": None,
+            "sysopname": None,
+            "frequency": None,
+            "town": None,
+            "location": None,
+    },
     "modules": {
         "enabled": [
             "ModuleHelp",
@@ -234,7 +242,30 @@ def validate_model(model):
             errors.append("Reflector authentication key is required.")
         elif len(str(reflector.get("auth_key"))) != 16:
             errors.append("Reflector authentication key must be 16 characters.")
+    echolink = model.get("echolink", {})
+    if echolink.get("enabled"):
+        echolink_callsign = echolink.get("callsign")
 
+        if not echolink_callsign:
+            errors.append("EchoLink callsign is required.")
+        elif not (
+            echolink_callsign.endswith("-L")
+            or echolink_callsign.endswith("-R")
+        ):
+            errors.append("EchoLink callsign must end in -L or -R.")
+
+        if not echolink.get("password"):
+            errors.append("EchoLink password is required.")
+
+        if not echolink.get("sysopname"):
+            errors.append("EchoLink sysop name is required.")
+
+        location = echolink.get("location")
+
+        if not location:
+            errors.append("EchoLink location is required.")
+        elif len(location) > 17:
+            errors.append("EchoLink location must be 17 characters or fewer.")          
     return errors
 
 
@@ -357,7 +388,56 @@ def disable_reflector(model):
     }
 
     return model
+    
+def set_echolink(
+    model,
+    enabled,
+    callsign=None,
+    password=None,
+    sysopname=None,
+    frequency=None,
+    town=None,
+):
+    """
+    Set EchoLink module configuration.
 
+    EchoLink LOCATION is built as:
+        [Svx] Fq, Town
+
+    The final LOCATION field must not exceed 17 characters.
+    """
+
+    if not enabled:
+        model["echolink"] = {
+            "enabled": False,
+            "callsign": None,
+            "password": None,
+            "sysopname": None,
+            "frequency": None,
+            "town": None,
+            "location": None,
+        }
+        return model
+
+    callsign = callsign.strip().upper()
+    password = password.strip()
+    sysopname = sysopname.strip()
+    frequency = frequency.strip()
+    town = town.strip()
+
+    location = f"[Svx] {frequency}, {town}"
+
+    model["echolink"] = {
+        "enabled": True,
+        "callsign": callsign,
+        "password": password,
+        "sysopname": sysopname,
+        "frequency": frequency,
+        "town": town,
+        "location": location,
+    }
+
+    return model
 
 def enable_module(model, module_name):
     """
