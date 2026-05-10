@@ -2,7 +2,7 @@
 <html lang="en" class="light-theme">
 <head>
     <meta charset="UTF-8">
-    <title>Setup Complete</title>
+    <title>Build Configuration</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
 </head>
@@ -12,20 +12,16 @@
         <div class="page-header">
             <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
             <div class="page-heading">
-                <h1>Configuration Complete</h1>
-                <p>The SvxLink configuration has been generated.</p>
+                <h1>Build Configuration</h1>
+                <p>The dashboard will now generate the SvxLink configuration files.</p>
             </div>
         </div>
 
-        {% if error %}
-            <p class="error">{{ error }}</p>
-        {% endif %}
-
         {% if build_result %}
             {% if build_result.success %}
-                <p class="success">SvxLink configuration built successfully.</p>
+                <p class="success">Configuration build completed successfully.</p>
             {% else %}
-                <p class="error">Build or launch failed.</p>
+                <p class="error">Configuration build failed.</p>
 
                 {% if build_result.validation_errors %}
                     <div class="form-section">
@@ -54,22 +50,18 @@
                     </div>
                 {% endif %}
             {% endif %}
+        {% else %}
+            <div class="note">
+                This step writes the generated configuration to the active SvxLink configuration location.
+            </div>
         {% endif %}
 
-        <div class="form-section">
-            <div class="label">SvxLink service status</div>
-            <p>{{ svxlink_status }}</p>
-        </div>
-
-        <div class="button-row">
-            <a class="button-secondary" href="/review">Review Settings</a>
-
-            <form action="/launch" method="post">
-                <button class="button-primary" type="submit">
-                    Build and Launch SvxLink
-                </button>
-            </form>
-        </div>
+        <form action="/build" method="post">
+            <div class="button-row">
+                <a class="button-secondary" href="/review">Back</a>
+                <button class="button-primary" type="submit">Build Configuration</button>
+            </div>
+        </form>
     </section>
 </main>
 </body>
