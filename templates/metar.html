@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>METAR Airports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>METAR Airports</h1>
+
+                <p>
+                    Select the airports available through the
+                    METAR information module.
+                </p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/metar" method="post">
+
+            <div class="field-group">
+                <label class="label">
+                    Default airport
+                </label>
+
+                <select class="input-field"
+                        name="startdefault">
+
+                    <option value="">
+                        Select airport
+                    </option>
+
+                    {% for icao, name in airports.items() %}
+                    <option value="{{ icao }}"
+                        {% if model.metar.startdefault == icao %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ icao }} - {{ name }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <div class="note">
+                    This airport is used when the module starts.
+                </div>
+            </div>
+
+            <div class="field-group">
+
+                <label class="label">
+                    Available airports
+                </label>
+
+                <div class="note">
+                    Select up to ten airports.
+                </div>
+
+                <div class="toggle-details">
+
+                    {% for icao, name in airports.items() %}
+
+                    <div class="checkbox-row">
+                        <input type="checkbox"
+                               id="{{ icao }}"
+                               name="airports"
+                               value="{{ icao }}"
+                               {% if icao in model.metar.airports %}
+                                   checked
+                               {% endif %}>
+
+                        <label for="{{ icao }}">
+                            {{ icao }} - {{ name }}
+                        </label>
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="/modules">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+</main>
+</body>
+</html>
