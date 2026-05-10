@@ -328,12 +328,57 @@ def modules_page():
 
         save_node_model(model)
 
+        if echolink_enabled:
+            return redirect(url_for("echolink_page"))
+
         if metar_enabled:
             return redirect(url_for("metar_page"))
 
         return redirect(url_for("reflector_page"))
 
     return render_template("modules.html", model=model)
+
+@app.route("/echolink", methods=["GET", "POST"])
+def echolink_page():
+    model = load_node_model()
+    error = None
+
+    if request.method == "POST":
+        callsign = request.form.get("echolink_callsign", "").strip().upper()
+        password = request.form.get("echolink_password", "").strip()
+        sysopname = request.form.get("echolink_sysopname", "").strip()
+        frequency = request.form.get("echolink_frequency", "").strip()
+        town = request.form.get("echolink_town", "").strip()
+
+        location = f"[Svx] {frequency}, {town}"
+
+        if not callsign.endswith(("-L", "-R")):
+            error = "EchoLink callsign must end in -L or -R."
+        elif not password:
+            error = "EchoLink password is required."
+        elif not sysopname:
+            error = "EchoLink sysop name is required."
+        elif len(location) > 17:
+            error = "EchoLink location must be 17 characters or fewer."
+        else:
+            model["echolink"] = {
+                "enabled": True,
+                "callsign": callsign,
+                "password": password,
+                "sysopname": sysopname,
+                "frequency": frequency,
+                "town": town,
+                "location": location,
+            }
+
+            save_node_model(model)
+
+            if model["metar"]["enabled"]:
+                return redirect(url_for("metar_page"))
+
+            return redirect(url_for("reflector_page"))
+
+    return render_template("echolink.html", model=model, error=error)
 
 @app.route("/reflector", methods=["GET", "POST"])
 def reflector_page():
