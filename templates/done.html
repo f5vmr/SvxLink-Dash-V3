@@ -1,0 +1,7 @@
+{% if build_result %}
+    {% if build_result.success %}
+        <p class="success">SvxLink configuration built and service restarted.</p>
+    {% else %}
+        <p class="error">Build failed. Check the reported errors.</p>
+    {% endif %}
+{% endif %}

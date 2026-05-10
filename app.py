@@ -2,8 +2,16 @@
 
 from flask import Flask, render_template, request, redirect, url_for
 from pathlib import Path
+from services.build_service import build_svxlink_configuration
+from services.svxlink_service import svxlink_status
+from services.model_store import (
+    load_node_model,
+    save_node_model,
+    reset_node_model,
+)
 import subprocess
 import platform
+
 
 
 # =========================================================
@@ -144,48 +152,10 @@ def ensure_dirs():
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def save_node_model(model):
-    """
-    Placeholder for JSON persistence.
-    JSON support will be added when we formalise the model module.
-    """
-    ensure_dirs()
-
-    import json
-    MODEL_FILE.write_text(
-        json.dumps(model, indent=4),
-        encoding="utf-8"
-    )
-
-
-def load_node_model():
-    import json
-
-    if not MODEL_FILE.exists():
-        model = default_node_model()
-        save_node_model(model)
-        return model
-
-    return json.loads(MODEL_FILE.read_text(encoding="utf-8"))
-
 
 # =========================================================
 # SvxLink service wrapper
 # =========================================================
-
-def restart_svxlink():
-    """
-    Uses existing sudoers.d permission.
-
-    Flask itself runs as svxlink.
-    Only this controlled command uses sudo.
-    """
-
-    subprocess.run(
-        ["sudo", "systemctl", "restart", "svxlink"],
-        check=True
-    )
-
 
 def svxlink_status():
     result = subprocess.run(
@@ -367,34 +337,33 @@ def connect():
         reflectors=reflectors,
     )
 
-
 @app.route("/done", methods=["GET"])
 def done():
     model = load_node_model()
-    status = svxlink_status()
 
     return render_template(
         "done.html",
         model=model,
-        svxlink_status=status,
+        svxlink_status=svxlink_status(),
+        build_result=None,
     )
-
 
 @app.route("/launch", methods=["POST"])
 def launch():
-    try:
-        restart_svxlink()
-    except subprocess.CalledProcessError as exc:
-        return render_template(
-            "done.html",
-            model=load_node_model(),
-            svxlink_status="restart failed",
-            error=f"Failed to restart SvxLink: {exc}",
-        )
+    model = load_node_model()
 
-    return redirect(url_for("done"))
+    result = build_svxlink_configuration(
+        model,
+        restart=True,
+    )
 
-
+    return render_template(
+        "done.html",
+        model=model,
+        svxlink_status=result.get("service_status"),
+        build_result=result,
+        error=None if result.get("success") else "Build or launch failed.",
+    )
 # =========================================================
 # Development entry point
 # systemd may call this directly.
