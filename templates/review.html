@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Review Configuration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Review Configuration</h1>
+                <p>Check the chosen settings before building the SvxLink configuration.</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Node</div>
+            <p>Type: {{ model.node.type }}</p>
+            <p>Callsign: {{ model.node.callsign }}</p>
+            <p>Platform: {{ model.platform.name }}</p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Interface</div>
+            <p>Mode: {{ model.interface.mode }}</p>
+            <p>SQL source: {{ model.interface.sql_source }}</p>
+            <p>PTT source: {{ model.interface.ptt_source }}</p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Squelch</div>
+            <p>Method: {{ model.squelch.method }}</p>
+            <p>CTCSS frequency: {{ model.squelch.ctcss_freq or 'Not set' }}</p>
+            <p>Transmit CTCSS: {{ 'Yes' if model.squelch.ctcss_tx else 'No' }}</p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Identification</div>
+            <p>Short: {{ model.ident.short.mode }} every {{ model.ident.short.interval }} minutes</p>
+            <p>Long: {{ model.ident.long.mode }} every {{ model.ident.long.interval }} minutes</p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Modules</div>
+            <p>{{ model.modules.enabled | join(', ') }}</p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Reflector</div>
+            {% if model.reflector.enabled %}
+                <p>{{ model.reflector.name }}</p>
+                <p>{{ model.reflector.host }}:{{ model.reflector.port }}</p>
+            {% else %}
+                <p>No reflector selected.</p>
+            {% endif %}
+        </div>
+
+        <form action="/review" method="post">
+            <div class="button-row">
+                <a class="button-secondary" href="/reflector">Back</a>
+                <button class="button-primary" type="submit">Proceed to Build</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

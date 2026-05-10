@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Reflector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Reflector</h1>
+                <p>Choose whether this node should connect to an SvxReflector.</p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/reflector" method="post">
+            <div class="option-group">
+                <div class="radio-row">
+                    <input type="radio" id="connect_yes" name="connect" value="yes"
+                           {% if model.reflector.enabled %}checked{% endif %}>
+                    <label for="connect_yes">Connect to a reflector</label>
+                </div>
+
+                <div class="radio-row">
+                    <input type="radio" id="connect_no" name="connect" value="no"
+                           {% if not model.reflector.enabled %}checked{% endif %}>
+                    <label for="connect_no">Do not connect to a reflector</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="reflector">Reflector</label>
+                <select class="input-field" id="reflector" name="reflector">
+                    {% for key, ref in reflectors.items() %}
+                    <option value="{{ key }}" {% if model.reflector.host == ref.host %}selected{% endif %}>
+                        {{ ref.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="note">
+                Register at the relevant reflector website before entering the password.
+            </div>
+
+            <div class="note">
+                {% for key, ref in reflectors.items() %}
+                    <a href="{{ ref.url }}" target="_blank">{{ ref.name }}</a><br>
+                {% endfor %}
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="password">Subscription password</label>
+                <input class="input-field" type="text" id="password" name="password"
+                       maxlength="16" autocomplete="off"
+                       value="{{ model.reflector.auth_key or '' }}"
+                       placeholder="16-character password">
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="/modules">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

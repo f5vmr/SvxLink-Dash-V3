@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Identification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Identification</h1>
+                <p>Choose short and long identification behaviour.</p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/ident" method="post">
+            <div class="form-section">
+                <div class="label">Short identification</div>
+
+                {% for mode, label in [('none','None'), ('cw','CW'), ('voice','Voice'), ('both','CW + Voice')] %}
+                <div class="radio-row">
+                    <input type="radio" id="short_{{ mode }}" name="short_ident_mode" value="{{ mode }}"
+                           {% if model.ident.short.mode == mode %}checked{% endif %}>
+                    <label for="short_{{ mode }}">{{ label }}</label>
+                </div>
+                {% endfor %}
+
+                <div class="field-group">
+                    <label class="label" for="short_ident_interval">Short interval minutes</label>
+                    <input class="input-field" type="number" id="short_ident_interval" name="short_ident_interval"
+                           min="1" value="{{ model.ident.short.interval }}">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="label">Long identification</div>
+
+                {% for mode, label in [('none','None'), ('cw','CW'), ('voice','Voice'), ('both','CW + Voice')] %}
+                <div class="radio-row">
+                    <input type="radio" id="long_{{ mode }}" name="long_ident_mode" value="{{ mode }}"
+                           {% if model.ident.long.mode == mode %}checked{% endif %}>
+                    <label for="long_{{ mode }}">{{ label }}</label>
+                </div>
+                {% endfor %}
+
+                <div class="field-group">
+                    <label class="label" for="long_ident_interval">Long interval minutes</label>
+                    <input class="input-field" type="number" id="long_ident_interval" name="long_ident_interval"
+                           min="1" value="{{ model.ident.long.interval }}">
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="/squelch">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

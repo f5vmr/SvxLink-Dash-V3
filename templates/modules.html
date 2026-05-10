@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Modules</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Modules</h1>
+                <p>Select optional SvxLink modules.</p>
+            </div>
+        </div>
+
+        <form action="/modules" method="post">
+            <div class="note">
+                ModuleHelp and ModuleParrot are always enabled.
+            </div>
+
+            <div class="option-group">
+                <div class="checkbox-row">
+                    <input type="checkbox" id="module_echolink" name="module_echolink" value="yes"
+                           {% if 'ModuleEchoLink' in model.modules.enabled %}checked{% endif %}>
+                    <label for="module_echolink">Enable EchoLink</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="module_metar" name="module_metar" value="yes"
+                           {% if 'ModuleMetarInfo' in model.modules.enabled %}checked{% endif %}>
+                    <label for="module_metar">Enable METAR weather information</label>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="/ident">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

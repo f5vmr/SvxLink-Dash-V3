@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Squelch Method</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Squelch Method</h1>
+                <p>Choose how SvxLink decides that a received signal is valid.</p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/squelch" method="post">
+            <div class="option-group">
+                <div class="radio-row">
+                    <input type="radio" id="sq_gpiod" name="squelch_method" value="gpiod"
+                           {% if model.squelch.method == 'gpiod' %}checked{% endif %}>
+                    <label for="sq_gpiod">Carrier / hardware squelch only</label>
+                </div>
+
+                <div class="radio-row">
+                    <input type="radio" id="sq_ctcss" name="squelch_method" value="ctcss"
+                           {% if model.squelch.method == 'ctcss' %}checked{% endif %}>
+                    <label for="sq_ctcss">CTCSS tone only</label>
+                </div>
+
+                <div class="radio-row">
+                    <input type="radio" id="sq_both" name="squelch_method" value="gpiod_ctcss"
+                           {% if model.squelch.method == 'gpiod_ctcss' %}checked{% endif %}>
+                    <label for="sq_both">Carrier / hardware squelch plus CTCSS</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="ctcss_freq">CTCSS frequency</label>
+                <input class="input-field" type="number" step="0.1" id="ctcss_freq" name="ctcss_freq"
+                       value="{{ model.squelch.ctcss_freq or '' }}"
+                       placeholder="Example: 136.5">
+                <div class="note">Only required when CTCSS is selected.</div>
+            </div>
+
+            <div class="option-group">
+                <div class="radio-row">
+                    <input type="radio" id="ctcss_rx_only" name="ctcss_tx" value="no"
+                           {% if not model.squelch.ctcss_tx %}checked{% endif %}>
+                    <label for="ctcss_rx_only">Receive only</label>
+                </div>
+
+                <div class="radio-row">
+                    <input type="radio" id="ctcss_tx_rx" name="ctcss_tx" value="yes"
+                           {% if model.squelch.ctcss_tx %}checked{% endif %}>
+                    <label for="ctcss_tx_rx">Receive and transmit CTCSS</label>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="/interface">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>
