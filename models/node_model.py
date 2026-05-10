@@ -33,6 +33,7 @@ SUPPORTED_ROGER_MODES = {
 SUPPORTED_SQUELCH_METHODS = {
     "gpiod",
     "ctcss",
+    "gpiod_ctcss",
 }
 SUPPORTED_INTERFACE_MODES = {
     "gpiod",
