@@ -236,23 +236,22 @@ def node_page():
 
 @app.route("/interface", methods=["GET", "POST"])
 def interface_page():
-        model = load_node_model()
-        error = None
-    
-        if request.method == "POST":
-            interface_mode = request.form.get("interface_mode")
-    
-            try:
-                from models.node_model import set_interface_mode
-                set_interface_mode(model, interface_mode)
-                save_node_model(model)
-                return redirect(url_for("squelch_page"))
-    
-            except ValueError as exc:
-                error = str(exc)
-    
-        return render_template("interface.html", model=model, error=error)
+    model = load_node_model()
+    error = None
 
+    if request.method == "POST":
+        interface_mode = request.form.get("interface_mode")
+
+        try:
+            from models.node_model import set_interface_mode
+            set_interface_mode(model, interface_mode)
+            save_node_model(model)
+            return redirect(url_for("squelch_page"))
+
+        except ValueError as exc:
+            error = str(exc)
+
+    return render_template("interface.html", model=model, error=error)
 @app.route("/squelch", methods=["GET", "POST"])
 def squelch_page():
     model = load_node_model()
@@ -263,10 +262,11 @@ def squelch_page():
 
         model["squelch"]["method"] = squelch_method
 
-        # CTCSS details will be expanded later.
         ctcss_freq = request.form.get("ctcss_freq")
         if ctcss_freq:
             model["squelch"]["ctcss_freq"] = ctcss_freq
+        else:
+            model["squelch"]["ctcss_freq"] = None
 
         model["squelch"]["ctcss_tx"] = (
             request.form.get("ctcss_tx") == "yes"
@@ -275,13 +275,12 @@ def squelch_page():
         save_node_model(model)
         return redirect(url_for("ident_page"))
 
-        return render_template(
+    return render_template(
         "squelch.html",
         model=model,
         error=error,
         ctcss_frequencies=CTCSS_FREQUENCIES,
-        )
-
+    )
 @app.route("/ident", methods=["GET", "POST"])
 def ident_page():
     model = load_node_model()
