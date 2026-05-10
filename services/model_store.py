@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 from models.node_model import new_node_model
-from platform import get_platform_profile
+from hw_platforms import get_platform_profile
 
 
 APP_ROOT = Path("/opt/dashboard")

@@ -10,7 +10,7 @@ from services.model_store import (
     reset_node_model,
 )
 import subprocess
-import platform
+import hw_platforms
 
 
 
@@ -642,11 +642,7 @@ def launch():
         build_result=result,
         error=None if result.get("success") else "Build or launch failed.",
     )
-
-# =========================================================
-# Development entry point
-# systemd may call this directly.
-# =========================================================    
+    
 if __name__ == "__main__":
     ensure_dirs()
 
