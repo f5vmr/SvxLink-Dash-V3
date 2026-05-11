@@ -101,44 +101,22 @@
             <div class="field-group">
 
                 <label class="label"
-                       for="echolink_frequency">
-                    Frequency text
+                       for="echolink_location">
+                    Location
                 </label>
 
                 <input class="input-field"
                        type="text"
-                       id="echolink_frequency"
-                       name="echolink_frequency"
-                       maxlength="8"
-                       autocomplete="off"
-                       value="{{ model.echolink.frequency or '' }}"
-                       placeholder="70cm">
-
-                <div class="note">
-                    Used in the EchoLink location line.
-                </div>
-
-            </div>
-
-            <div class="field-group">
-
-                <label class="label"
-                       for="echolink_town">
-                    Town / location
-                </label>
-
-                <input class="input-field"
-                       type="text"
-                       id="echolink_town"
-                       name="echolink_town"
+                       id="echolink_location"
+                       name="echolink_location"
                        maxlength="10"
                        autocomplete="off"
-                       value="{{ model.echolink.town or '' }}"
+                       value="{{ model.echolink.location or '' }}"
                        placeholder="London">
 
                 <div class="note">
                     Final location format:
-                    [Svx] Freq, Town
+                    [Svx] Freq, Location
                 </div>
 
                 <div class="note">

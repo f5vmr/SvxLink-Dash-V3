@@ -141,8 +141,6 @@ DEFAULT_MODEL = {
             "callsign": None,
             "password": None,
             "sysopname": None,
-            "frequency": None,
-            "town": None,
             "location": None,
     },
         "metar": {
@@ -247,7 +245,9 @@ def validate_model(model):
             errors.append("Reflector authentication key is required.")
         elif len(str(reflector.get("auth_key"))) != 16:
             errors.append("Reflector authentication key must be 16 characters.")
+ 
     echolink = model.get("echolink", {})
+
     if echolink.get("enabled"):
         echolink_callsign = echolink.get("callsign")
 
@@ -269,8 +269,11 @@ def validate_model(model):
 
         if not location:
             errors.append("EchoLink location is required.")
-        elif len(location) > 17:
-            errors.append("EchoLink location must be 17 characters or fewer.")          
+        elif not location.startswith("[Svx] "):
+            errors.append("EchoLink location must start with [Svx].")
+        elif len(location.replace("[Svx] ", "", 1)) > 12:
+            errors.append("EchoLink location text must be 12 characters or fewer.")
+    
     return errors
 
 
@@ -400,14 +403,13 @@ def set_echolink(
     callsign=None,
     password=None,
     sysopname=None,
-    frequency=None,
-    town=None,
+    location=None,
 ):
     """
     Set EchoLink module configuration.
 
     EchoLink LOCATION is built as:
-        [Svx] Fq, Town
+        [Svx] Fq, Location
 
     The final LOCATION field must not exceed 17 characters.
     """
@@ -417,9 +419,7 @@ def set_echolink(
             "enabled": False,
             "callsign": None,
             "password": None,
-            "sysopname": None,
-            "frequency": None,
-            "town": None,
+            "sysopname": None,           
             "location": None,
         }
         return model
@@ -427,18 +427,15 @@ def set_echolink(
     callsign = callsign.strip().upper()
     password = password.strip()
     sysopname = sysopname.strip()
-    frequency = frequency.strip()
-    town = town.strip()
+    location_text = location.strip()
 
-    location = f"[Svx] {frequency}, {town}"
+    location = f"[Svx] {location_text}"
 
     model["echolink"] = {
         "enabled": True,
         "callsign": callsign,
         "password": password,
         "sysopname": sysopname,
-        "frequency": frequency,
-        "town": town,
         "location": location,
     }
 

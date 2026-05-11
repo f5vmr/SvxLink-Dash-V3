@@ -347,10 +347,9 @@ def echolink_page():
         callsign = request.form.get("echolink_callsign", "").strip().upper()
         password = request.form.get("echolink_password", "").strip()
         sysopname = request.form.get("echolink_sysopname", "").strip()
-        frequency = request.form.get("echolink_frequency", "").strip()
-        town = request.form.get("echolink_town", "").strip()
+        location_text = request.form.get("echolink_location", "").strip()
 
-        location = f"[Svx] {frequency}, {town}"
+        location = f"[Svx] {location_text}"
 
         if not callsign.endswith(("-L", "-R")):
             error = "EchoLink callsign must end in -L or -R."
@@ -358,16 +357,16 @@ def echolink_page():
             error = "EchoLink password is required."
         elif not sysopname:
             error = "EchoLink sysop name is required."
-        elif len(location) > 17:
-            error = "EchoLink location must be 17 characters or fewer."
+        elif not location_text:
+            error = "EchoLink location is required."
+        elif len(location_text) > 12:
+            error = "EchoLink location must be 12 characters or fewer after [Svx]."
         else:
             model["echolink"] = {
                 "enabled": True,
                 "callsign": callsign,
                 "password": password,
                 "sysopname": sysopname,
-                "frequency": frequency,
-                "town": town,
                 "location": location,
             }
 
