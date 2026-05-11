@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Operating Environment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Operating Environment</h1>
+
+                <p>
+                    Please indicate in which environment this SvxLink node will operate.
+                </p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('environment_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">
+                    Environment
+                </label>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="env_british_isles"
+                           name="environment"
+                           value="british_isles"
+                           {% if model.environment.region == "british_isles" %}
+                               checked
+                           {% endif %}>
+
+                    <label for="env_british_isles">
+                        The British Isles or nearby
+                    </label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="env_north_america"
+                           name="environment"
+                           value="north_america"
+                           {% if model.environment.region == "north_america" %}
+                               checked
+                           {% endif %}>
+
+                    <label for="env_north_america">
+                        North America
+                    </label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="env_australia_nz"
+                           name="environment"
+                           value="australia_nz"
+                           {% if model.environment.region == "australia_nz" %}
+                               checked
+                           {% endif %}>
+
+                    <label for="env_australia_nz">
+                        Australia &amp; New Zealand
+                    </label>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('platform_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+</main>
+</body>
+</html>

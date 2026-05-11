@@ -207,11 +207,60 @@ def platform_page():
     if request.method == "POST":
         # Platform is normally detected, not user-selected.
         save_node_model(model)
-        return redirect(url_for("node_page"))
+        return redirect(url_for("environment_page"))
 
     return render_template("platform.html", model=model)
 
+@app.route("/environment", methods=["GET", "POST"])
+def environment_page():
+    model = load_node_model()
+    error = None
 
+    if "environment" not in model:
+        model["environment"] = {}
+
+    if request.method == "POST":
+
+        environment = request.form.get("environment", "").strip()
+
+        if not environment:
+            error = "Please select an operating environment."
+
+        else:
+
+            if environment == "north_america":
+                language = "en_US"
+                metar_region = "north_america"
+
+            elif environment == "australia_nz":
+                language = "en_GB"
+                metar_region = "australia"
+
+            else:
+                environment = "british_isles"
+                language = "en_GB"
+                metar_region = "ukwide"
+
+            model["environment"] = {
+                "region": environment,
+            }
+
+            model["language"] = {
+                "default": language,
+            }
+
+            model["metar"]["region"] = metar_region
+
+            save_node_model(model)
+
+            return redirect(url_for("node_page"))
+
+    return render_template(
+        "environment.html",
+        model=model,
+        error=error,
+    )
+    
 @app.route("/node", methods=["GET", "POST"])
 def node_page():
     model = load_node_model()
