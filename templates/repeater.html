@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Repeater Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Repeater Settings</h1>
+                <p>Set repeater timing and optional DTMF online control.</p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('repeater_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label" for="idle_timeout">Idle timeout</label>
+
+                <input class="input-field"
+                       id="idle_timeout"
+                       name="idle_timeout"
+                       type="number"
+                       min="1"
+                       max="20"
+                       value="{{ model.repeater.idle_timeout or 10 }}">
+
+                <div class="note">
+                    Seconds the repeater remains up after SQL closes. Default 10. Longer than 20 is not recommended.
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="sql_timeout">SQL timeout</label>
+
+                <input class="input-field"
+                       id="sql_timeout"
+                       name="sql_timeout"
+                       type="number"
+                       min="120"
+                       max="300"
+                       value="{{ model.repeater.sql_timeout or 180 }}">
+
+                <div class="note">
+                    Maximum continuous transmit time in seconds. Default 180.
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label">Online control</label>
+
+                <div class="checkbox-row">
+                    <input type="checkbox"
+                           id="online_enabled"
+                           name="online_enabled"
+                           value="yes"
+                           {% if model.online_control.enabled %}
+                               checked
+                           {% endif %}>
+
+                    <label for="online_enabled">
+                        Enable DTMF online/offline control
+                    </label>
+                </div>
+
+                <div class="note">
+                    Command followed by 0# disables SvxLink. The same command followed by 1# enables it.
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="online_command">Online control command</label>
+
+                <input class="input-field"
+                       id="online_command"
+                       name="online_command"
+                       type="text"
+                       maxlength="6"
+                       value="{{ model.online_control.command or '998877' }}">
+
+                <div class="note">
+                    Six digits. First digit must be 3–7.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('courtesy_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+</main>
+</body>
+</html>

@@ -476,7 +476,8 @@ def courtesy_page():
                 }
 
                 save_node_model(model)
-
+                if model.get("node", {}).get("type") == "repeater":
+                    return redirect(url_for("repeater_page"))
                 return redirect(url_for("modules_page"))
 
     return render_template(
@@ -484,7 +485,67 @@ def courtesy_page():
         model=model,
         error=error,
     )
+@app.route("/repeater", methods=["GET", "POST"])
+def repeater_page():
+    model = load_node_model()
+    error = None
 
+    if "repeater" not in model:
+        model["repeater"] = {
+            "idle_timeout": 10,
+            "sql_timeout": 180,
+        }
+
+    if "online_control" not in model:
+        model["online_control"] = {
+            "enabled": False,
+            "command": "998877",
+        }
+
+    if request.method == "POST":
+        try:
+            idle_timeout = int(request.form.get("idle_timeout", "10"))
+            sql_timeout = int(request.form.get("sql_timeout", "180"))
+        except ValueError:
+            error = "Timeout values must be numeric."
+        else:
+            online_enabled = request.form.get("online_enabled") == "yes"
+            online_command = request.form.get("online_command", "").strip()
+
+            if idle_timeout < 1 or idle_timeout > 20:
+                error = "Idle timeout must be between 1 and 20 seconds."
+
+            elif sql_timeout < 120 or sql_timeout > 300:
+                error = "SQL timeout must be between 120 and 300 seconds."
+
+            elif online_enabled and not (
+                online_command.isdigit()
+                and len(online_command) == 6
+                and online_command[0] in "34567"
+            ):
+                error = "Online control command must be six digits and begin with 3, 4, 5, 6, or 7."
+
+            else:
+                model["repeater"] = {
+                    "idle_timeout": idle_timeout,
+                    "sql_timeout": sql_timeout,
+                }
+
+                model["online_control"] = {
+                    "enabled": online_enabled,
+                    "command": online_command or "998877",
+                }
+
+                save_node_model(model)
+
+                return redirect(url_for("modules_page"))
+
+    return render_template(
+        "repeater.html",
+        model=model,
+        error=error,
+    )
+    
 @app.route("/modules", methods=["GET", "POST"])
 def modules_page():
     model = load_node_model()
