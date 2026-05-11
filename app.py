@@ -49,10 +49,10 @@ SVXLINK_CONF = Path("/etc/svxlink/svxlink.conf")
 
 MODULE_DIR = Path("/etc/svxlink/svxlink.d")
 
-LOGIC_DIR_SRC = Path("/usr/share/svxlink/events.d")
+EVENT_SOURCE_DIR = Path("/usr/share/svxlink/events.d")
 
-LOGIC_DIR_DST = Path("/usr/share/svxlink/events.d/local")
-
+EVENT_DEST_DIR = Path("/usr/share/svxlink/events.d/local")
+EVENT_FILES = ['Logic.tcl', 'RepeaterLogicType.tcl']
 # =========================================================
 # Flask app
 # =========================================================
@@ -385,13 +385,62 @@ def ident_page():
             model["ident"]["long"]["interval"] = int(request.form.get("long_ident_interval", "60"))
 
             save_node_model(model)
-            return redirect(url_for("modules_page"))
+            return redirect(url_for("courtesy_page"))
 
         except ValueError:
             error = "Identification intervals must be numeric."
 
     return render_template("ident.html", model=model, error=error)
 
+@app.route("/courtesy", methods=["GET", "POST"])
+def courtesy_page():
+    model = load_node_model()
+    error = None
+
+    if "courtesy" not in model:
+        model["courtesy"] = {
+            "mode": "none",
+            "frequency": 800,
+        }
+
+    node_type = model.get("node", {}).get("type", "simplex")
+
+    if request.method == "POST":
+        courtesy_mode = request.form.get("courtesy_mode", "").strip()
+        tone_freq = request.form.get("tone_freq", "800").strip()
+
+        if not courtesy_mode:
+            error = "Please select a courtesy tone."
+
+        elif node_type == "repeater" and courtesy_mode == "none":
+            error = "Repeater systems require a courtesy tone."
+
+        elif courtesy_mode not in ("none", "beep", "morse_t", "morse_k"):
+            error = "Invalid courtesy tone selection."
+
+        else:
+            try:
+                tone_freq = int(tone_freq)
+            except ValueError:
+                tone_freq = 800
+
+            if tone_freq < 300 or tone_freq > 3000:
+                error = "Beep frequency must be between 300 and 3000 Hz."
+            else:
+                model["courtesy"] = {
+                    "mode": courtesy_mode,
+                    "frequency": tone_freq,
+                }
+
+                save_node_model(model)
+
+                return redirect(url_for("modules_page"))
+
+    return render_template(
+        "courtesy.html",
+        model=model,
+        error=error,
+    )
 
 @app.route("/modules", methods=["GET", "POST"])
 def modules_page():
