@@ -2,7 +2,7 @@
 <html lang="en" class="light-theme">
 <head>
     <meta charset="UTF-8">
-    <title>METAR Airports</title>
+    <title>METAR Additional Airports</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
 </head>
@@ -16,11 +16,10 @@
                  alt="SvxLink icon">
 
             <div class="page-heading">
-                <h1>METAR Airports</h1>
+                <h1>METAR Additional Airports</h1>
 
                 <p>
-                    Select the airports available through the
-                    METAR information module.
+                    Select up to six additional airports for the METAR information module.
                 </p>
             </div>
         </div>
@@ -29,63 +28,55 @@
             <p class="error">{{ error }}</p>
         {% endif %}
 
-        <form action="/metar" method="post">
+        <form action="{{ url_for('metar_airports_page') }}" method="post">
 
             <div class="field-group">
                 <label class="label">
                     Default airport
                 </label>
 
-                <select class="input-field"
-                        name="startdefault">
-
-                    <option value="">
-                        Select airport
-                    </option>
-
-                    {% for icao, name in airports.items() %}
-                    <option value="{{ icao }}"
-                        {% if model.metar.startdefault == icao %}
-                            selected
-                        {% endif %}
-                    >
-                        {{ icao }} - {{ name }}
-                    </option>
-                    {% endfor %}
-                </select>
-
                 <div class="note">
-                    This airport is used when the module starts.
+                    The default airport is already selected and will be included automatically.
                 </div>
+
+                <p>
+                    <strong>{{ startdefault }}</strong>
+                    {% if startdefault in airports %}
+                        - {{ airports[startdefault] }}
+                    {% endif %}
+                </p>
             </div>
 
             <div class="field-group">
-
                 <label class="label">
-                    Available airports
+                    Additional airports
                 </label>
 
                 <div class="note">
-                    Select up to ten airports.
+                    Select up to six additional airports.
                 </div>
 
                 <div class="airport-grid">
 
                     {% for icao, name in airports.items() %}
 
-                    <div class="checkbox-row">
-                        <input type="checkbox"
-                               id="{{ icao }}"
-                               name="airports"
-                               value="{{ icao }}"
-                               {% if icao in model.metar.airports %}
-                                   checked
-                               {% endif %}>
+                        {% if icao != startdefault %}
 
-                        <label for="{{ icao }}">
-                            {{ icao }} - {{ name }}
-                        </label>
-                    </div>
+                        <div class="checkbox-row">
+                            <input type="checkbox"
+                                   id="airport_{{ icao }}"
+                                   name="airports"
+                                   value="{{ icao }}"
+                                   {% if icao in model.metar.airports %}
+                                       checked
+                                   {% endif %}>
+
+                            <label for="airport_{{ icao }}">
+                                {{ icao }} - {{ name }}
+                            </label>
+                        </div>
+
+                        {% endif %}
 
                     {% endfor %}
 
@@ -94,7 +85,7 @@
 
             <div class="button-row">
                 <a class="button-secondary"
-                   href="/modules">
+                   href="{{ url_for('metar_default_page') }}">
                     Back
                 </a>
 
