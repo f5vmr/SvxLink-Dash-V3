@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>METAR Default Airport</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>METAR Default Airport</h1>
+
+                <p>
+                    Select the default airport used when the
+                    METAR information module starts.
+                </p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('metar_default_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">
+                    Default airport
+                </label>
+
+                <div class="note">
+                    Select one airport from the available regional list.
+                </div>
+
+                <div class="airport-grid">
+
+                    {% for icao, name in airports.items() %}
+
+                    <div class="checkbox-row">
+                        <input type="radio"
+                               id="default_{{ icao }}"
+                               name="startdefault"
+                               value="{{ icao }}"
+                               {% if model.metar.startdefault == icao %}
+                                   checked
+                               {% endif %}>
+
+                        <label for="default_{{ icao }}">
+                            {{ icao }} - {{ name }}
+                        </label>
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('modules_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+</main>
+</body>
+</html>
