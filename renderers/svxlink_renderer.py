@@ -19,8 +19,83 @@ def build_modules(model):
     enabled = model.get("modules", {}).get("enabled", [])
 
     return ",".join(enabled)
+# =========================================================
+# Language rendering
+# =========================================================
+def get_default_language(model):
+    """
+    Return selected default language.
 
+    Set by /environment page.
+    British Isles and Australia/NZ use en_GB.
+    North America uses en_US.
+    """
 
+    return (
+        model.get("language", {}).get("default")
+        or model.get("node", {}).get("language")
+        or "en_GB"
+    )
+# =========================================================
+# Module-specific renderers
+# =========================================================
+
+def render_echolink_module(model):
+    """
+    Render ModuleEchoLink section if enabled.
+    """
+
+    echolink = model.get("echolink", {})
+
+    if not echolink.get("enabled"):
+        return ""
+
+    return render_config_template(
+        "module_echolink.template",
+        {
+            "ECHOLINK_CALLSIGN": echolink.get("callsign", ""),
+            "ECHOLINK_PASSWORD": echolink.get("password", ""),
+            "ECHOLINK_SYSOPNAME": echolink.get("sysopname", ""),
+            "ECHOLINK_LOCATION": echolink.get("location", ""),
+        }
+    )
+
+# =========================================================
+# METAR rendering
+# =========================================================
+def render_metar_module(model):
+    """
+    Render ModuleMetarInfo section if enabled.
+
+    STARTDEFAULT must always contain a valid ICAO.
+    AIRPORTS includes STARTDEFAULT first, followed by up to six extras.
+    """
+
+    metar = model.get("metar", {})
+
+    if not metar.get("enabled"):
+        return ""
+
+    startdefault = metar.get("startdefault", "").strip().upper()
+    extras = metar.get("airports", [])
+
+    airports = []
+
+    if startdefault:
+        airports.append(startdefault)
+
+    for airport in extras:
+        airport = airport.strip().upper()
+        if airport and airport not in airports:
+            airports.append(airport)
+
+    return render_config_template(
+        "module_metar.template",
+        {
+            "METAR_STARTDEFAULT": startdefault,
+            "METAR_AIRPORTS": ",".join(airports),
+        }
+    )
 # =========================================================
 # Ident rendering
 # =========================================================
