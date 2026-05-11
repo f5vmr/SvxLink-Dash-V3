@@ -18,6 +18,13 @@
         </div>
 
         <div class="form-section">
+            <div class="label">System</div>
+            <p>Environment: {{ model.environment.region }}</p>
+            <p>Language: {{ model.language.default }}</p>
+            <p>Time zone: {{ model.timezone.name }}</p>
+        </div>
+
+        <div class="form-section">
             <div class="label">Node</div>
             <p>Type: {{ model.node.type }}</p>
             <p>Callsign: {{ model.node.callsign }}</p>
@@ -48,6 +55,24 @@
             <div class="label">Modules</div>
             <p>{{ model.modules.enabled | join(', ') }}</p>
         </div>
+
+        {% if model.echolink.enabled %}
+        <div class="form-section">
+            <div class="label">EchoLink</div>
+            <p>Callsign: {{ model.echolink.callsign }}</p>
+            <p>Sysop: {{ model.echolink.sysopname }}</p>
+            <p>Location: {{ model.echolink.location }}</p>
+        </div>
+        {% endif %}
+
+        {% if model.metar.enabled %}
+        <div class="form-section">
+            <div class="label">METAR</div>
+            <p>Region: {{ model.metar.region }}</p>
+            <p>Default airport: {{ model.metar.startdefault }}</p>
+            <p>Additional airports: {{ model.metar.airports | join(', ') if model.metar.airports else 'None' }}</p>
+        </div>
+        {% endif %}
 
         <div class="form-section">
             <div class="label">Reflector</div>
