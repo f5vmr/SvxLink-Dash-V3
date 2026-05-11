@@ -33,6 +33,7 @@ from services.svxlink_service import (
     backup_active_config,
     write_text_file,
     deploy_required_logic_files,
+    apply_courtesy_tone,
     restart_svxlink,
     svxlink_status,
 )
@@ -277,7 +278,11 @@ def build_svxlink_configuration(
 
     try:
         logic_files = deploy_required_logic_files()
-
+    
+        courtesy_logic = apply_courtesy_tone(model)
+    
+        logic_files.append(courtesy_logic)
+    
         result["logic_files"] = [
             str(x) for x in logic_files
         ]

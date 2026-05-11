@@ -211,3 +211,64 @@ def deploy_required_logic_files():
         deployed.append(deploy_logic_file(filename))
 
     return deployed
+def apply_courtesy_tone(model):
+    """
+    Modify local Logic.tcl according to selected courtesy tone.
+
+    Uses:
+    - model["courtesy"]["mode"]
+    - model["courtesy"]["frequency"]
+    - model["cw"]["amp"]
+    - model["cw"]["pitch"]
+    - model["cw"]["cpm"]
+
+    The local Logic.tcl file is managed output, so no backup is made here.
+    """
+
+    logic_tcl = LOGIC_DIR_DST / "Logic.tcl"
+
+    if not logic_tcl.exists():
+        raise FileNotFoundError(f"Logic.tcl not found: {logic_tcl}")
+
+    courtesy = model.get("courtesy", {})
+    cw = model.get("cw", {})
+
+    mode = courtesy.get("mode", "none")
+    tone_freq = courtesy.get("frequency", 800)
+
+    cw_amp = cw.get("amp", -10)
+    cw_pitch = cw.get("pitch", 650)
+    cw_cpm = cw.get("cpm", 95)
+
+    content = logic_tcl.read_text(encoding="utf-8")
+
+    # Disable the stock CW squelch tail marker if present.
+    content = content.replace(
+        "CW::play $sql_rx_id 200 1000 -10",
+        "# CW::play $sql_rx_id 200 1000 -10"
+    )
+
+    # Replace the stock courtesy tone line.
+    if mode == "none":
+        replacement = "# playTone 440 500 100"
+
+    elif mode == "beep":
+        replacement = f"playTone {tone_freq} 800 60"
+
+    elif mode == "morse_t":
+        replacement = f'CW::play "T" {cw_cpm} {cw_pitch} {cw_amp}'
+
+    elif mode == "morse_k":
+        replacement = f'CW::play "K" {cw_cpm} {cw_pitch} {cw_amp}'
+
+    else:
+        replacement = "# playTone 440 500 100"
+
+    content = content.replace(
+        "playTone 440 500 100",
+        replacement
+    )
+
+    logic_tcl.write_text(content, encoding="utf-8")
+
+    return logic_tcl
