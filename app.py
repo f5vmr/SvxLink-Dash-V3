@@ -385,13 +385,56 @@ def ident_page():
             model["ident"]["long"]["interval"] = int(request.form.get("long_ident_interval", "60"))
 
             save_node_model(model)
-            return redirect(url_for("courtesy_page"))
+            return redirect(url_for("cw_page"))
 
         except ValueError:
             error = "Identification intervals must be numeric."
 
     return render_template("ident.html", model=model, error=error)
 
+@app.route("/cw", methods=["GET", "POST"])
+def cw_page():
+    model = load_node_model()
+    error = None
+
+    if "cw" not in model:
+        model["cw"] = {
+            "amp": -10,
+            "pitch": 650,
+            "cpm": 95,
+        }
+
+    if request.method == "POST":
+        try:
+            cw_amp = int(request.form.get("cw_amp", "-10"))
+            cw_pitch = int(request.form.get("cw_pitch", "650"))
+            cw_cpm = int(request.form.get("cw_cpm", "95"))
+        except ValueError:
+            error = "CW settings must be numeric."
+        else:
+            if cw_amp > -10 or cw_amp < -30:
+                error = "CW amplitude must be between -10 and -30 dB."
+            elif cw_pitch < 400 or cw_pitch > 1000:
+                error = "CW pitch must be between 400 and 1000 Hz."
+            elif cw_cpm < 60 or cw_cpm > 160:
+                error = "CW speed must be between 60 and 160 CPM."
+            else:
+                model["cw"] = {
+                    "amp": cw_amp,
+                    "pitch": cw_pitch,
+                    "cpm": cw_cpm,
+                }
+
+                save_node_model(model)
+
+                return redirect(url_for("courtesy_page"))
+
+    return render_template(
+        "cw.html",
+        model=model,
+        error=error,
+    )
+    
 @app.route("/courtesy", methods=["GET", "POST"])
 def courtesy_page():
     model = load_node_model()

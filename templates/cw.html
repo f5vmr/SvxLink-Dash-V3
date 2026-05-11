@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>CW Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>CW Settings</h1>
+                <p>
+                    Set the CW tone used for Morse identification and Morse courtesy tones.
+                </p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('cw_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label" for="cw_amp">
+                    CW amplitude
+                </label>
+
+                <input class="input-field"
+                       id="cw_amp"
+                       name="cw_amp"
+                       type="number"
+                       max="-10"
+                       min="-30"
+                       value="{{ model.cw.amp or -10 }}">
+
+                <div class="note">
+                    Default is -10 dB. Use lower values such as -12 or -15 to reduce CW level.
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="cw_pitch">
+                    CW pitch
+                </label>
+
+                <input class="input-field"
+                       id="cw_pitch"
+                       name="cw_pitch"
+                       type="number"
+                       min="400"
+                       max="1000"
+                       value="{{ model.cw.pitch or 650 }}">
+
+                <div class="note">
+                    Default is 650 Hz.
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="cw_cpm">
+                    CW speed
+                </label>
+
+                <input class="input-field"
+                       id="cw_cpm"
+                       name="cw_cpm"
+                       type="number"
+                       min="60"
+                       max="160"
+                       value="{{ model.cw.cpm or 95 }}">
+
+                <div class="note">
+                    Default is 95 CPM. 130 CPM is a reasonable faster setting.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+</main>
+</body>
+</html>
