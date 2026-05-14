@@ -120,14 +120,26 @@
 
         <div id="tail" class="hideScrollbar">
 
-{% for line in status.recent_log %}
-{{ line }}
-<br>
-{% endfor %}
+        {% for line in status.recent_log %}
+        {{ line }}
+        <br>
+        {% endfor %}
 
     </div>
 
 </div>
+        <div class="tg-button-row">
+        
+            {% for tg in talkgroups %}
+        
+                <button class="tg-button {{ tg.colour }}">
+                    TG {{ tg.id }}<br>
+                    {{ tg.label }}
+                </button>
+            
+            {% endfor %}
+            
+        </div>
         <footer class="site-footer">
             SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
             SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB

@@ -14,6 +14,7 @@ import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
 from data.timezones import TIMEZONES
+from data.talkgroups import TALKGROUPS
 
 
 
@@ -825,12 +826,24 @@ def launch():
 @app.route("/status", methods=["GET"])
 def status_page():
     model = load_node_model()
+
     status = get_runtime_status(model)
+
+    environment = model.get(
+        "environment",
+        "british_isles"
+    )
+
+    talkgroups = TALKGROUPS.get(
+        environment,
+        []
+    )
 
     return render_template(
         "status.html",
         model=model,
         status=status,
+        talkgroups=talkgroups,
     )
     
 if __name__ == "__main__":
