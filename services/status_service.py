@@ -106,5 +106,25 @@ def get_runtime_status(model):
             "enabled",
             []
         ),
+        "recent_log": get_recent_log_lines(),
     }
-    
+def get_recent_log_lines(limit=40):
+    """
+    Return recent SvxLink log lines for dashboard display.
+    """
+
+    log_file = Path("/var/log/svxlink.log")
+
+    if not log_file.exists():
+        return ["Log file not found: /var/log/svxlink.log"]
+
+    try:
+        lines = log_file.read_text(
+            encoding="utf-8",
+            errors="ignore"
+        ).splitlines()
+
+    except Exception as exc:
+        return [f"Unable to read log file: {exc}"]
+
+    return lines[-limit:]    
