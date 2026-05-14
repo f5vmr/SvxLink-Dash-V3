@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Node Status</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="card dashboard-container">
+
+        <div class="dashboard-header">
+            <h1>
+                SvxLink Node Status
+            </h1>
+
+            <p>
+                Live runtime monitoring
+            </p>
+        </div>
+
+        <div class="dashboard-grid">
+
+            <div class="dashboard-panel">
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Node
+                    </div>
+
+                    <div class="status-box-row">
+                        {{ status.callsign }}
+                    </div>
+
+                    <div class="status-box-row">
+                        {{ status.node_type }}
+                    </div>
+
+                </div>
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Service
+                    </div>
+
+                    <div class="status-box-row
+                        {% if status.service_status == 'active' %}
+                            status-good
+                        {% else %}
+                            status-bad
+                        {% endif %}
+                    ">
+                        {{ status.service_status }}
+                    </div>
+
+                </div>
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Uptime
+                    </div>
+
+                    <div class="status-box-row">
+                        {{ status.uptime }}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="dashboard-panel">
+
+                <table class="dashboard-table">
+
+                    <thead>
+                        <tr>
+                            <th colspan="2">
+                                Runtime Information
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Reflector</td>
+                            <td>{{ status.reflector }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>Modules</td>
+                            <td>
+                                {{ status.modules | join(', ') }}
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <footer class="site-footer">
+            SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+            SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
+        </footer>
+
+    </section>
+
+</main>
+
+</body>
+</html>

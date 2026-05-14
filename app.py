@@ -9,6 +9,7 @@ from services.model_store import (
     save_node_model,
     reset_node_model,
 )
+from services.status_service import get_runtime_status
 import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
@@ -819,6 +820,17 @@ def launch():
         svxlink_status=result.get("service_status"),
         build_result=result,
         error=None if result.get("success") else "Build or launch failed.",
+    )
+
+@app.route("/status", methods=["GET"])
+def status_page():
+    model = load_node_model()
+    status = get_runtime_status(model)
+
+    return render_template(
+        "status.html",
+        model=model,
+        status=status,
     )
     
 if __name__ == "__main__":
