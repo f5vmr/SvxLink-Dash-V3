@@ -9,6 +9,7 @@ from services.model_store import (
     save_node_model,
     reset_node_model,
 )
+from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 import subprocess
 import hw_platforms
@@ -845,6 +846,20 @@ def status_page():
         status=status,
         talkgroups=talkgroups,
     )
+@app.route("/dtmf", methods=["POST"])
+def dtmf_page():
+    command = request.form.get("command", "").strip()
+
+    try:
+        send_dtmf(command)
+
+    except Exception as exc:
+        return (
+            f"DTMF send failed: {exc}",
+            500,
+        )
+
+    return redirect(url_for("status_page"))
     
 if __name__ == "__main__":
     ensure_dirs()

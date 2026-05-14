@@ -129,16 +129,27 @@
 
 </div>
         <div class="tg-button-row">
-        
-            {% for tg in talkgroups %}
-        
-                <button class="tg-button {{ tg.colour }}">
-                    TG {{ tg.id }}<br>
-                    {{ tg.label }}
-                </button>
-            
-            {% endfor %}
-            
+
+    {% for tg in talkgroups %}
+
+        <form action="{{ url_for('dtmf_page') }}"
+              method="post"
+              style="display:inline;">
+
+            <input type="hidden"
+                   name="command"
+                   value="{{ tg.command }}">
+
+            <button class="tg-button {{ tg.colour }}"
+                    type="submit">
+                TG {{ tg.id }}<br>
+                {{ tg.label }}
+            </button>
+
+            </form>
+
+                {% endfor %}
+
         </div>
         <footer class="site-footer">
             SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
