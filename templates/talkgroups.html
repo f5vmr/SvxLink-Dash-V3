@@ -60,10 +60,18 @@
                     </td>
 
                     <td>
-                        <input class="dtmf-command"
-                               type="text"
-                               name="colour_{{ loop.index0 }}"
-                               value="{{ tg.colour }}">
+                        <select class="dtmf-command"
+                            name="colour_{{ loop.index0 }}">
+
+                        <option value="tg-yellow" {% if tg.colour == "tg-yellow" %}selected{% endif %}>Yellow</option>
+                        <option value="tg-green" {% if tg.colour == "tg-green" %}selected{% endif %}>Green</option>
+                        <option value="tg-blue" {% if tg.colour == "tg-blue" %}selected{% endif %}>Blue</option>
+                        <option value="tg-red" {% if tg.colour == "tg-red" %}selected{% endif %}>Red</option>
+                        <option value="tg-orange" {% if tg.colour == "tg-orange" %}selected{% endif %}>Orange</option>
+                        <option value="tg-purple" {% if tg.colour == "tg-purple" %}selected{% endif %}>Purple</option>
+                        <option value="tg-gold" {% if tg.colour == "tg-gold" %}selected{% endif %}>Gold</option>
+
+</select>
                     </td>
 
                     <td>
