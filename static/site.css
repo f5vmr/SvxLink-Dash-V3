@@ -1120,3 +1120,23 @@ footer a:hover {
     color: #444444;
     border-top: 1px solid #cccccc;
 }
+.dashboard-menu {
+    margin: 0.75rem 0 1rem 0;
+    padding: 0.5rem;
+    text-align: center;
+    background: #0000ff;
+    color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px #303030;
+}
+
+.dashboard-menu a {
+    color: #ffe63b;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 0 0.4rem;
+}
+
+.dashboard-menu a:hover {
+    color: orange;
+}
