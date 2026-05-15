@@ -897,36 +897,60 @@ def monitor_tgs_page():
     model = load_node_model()
     error = None
 
-    environment = model.get("environment", {}).get(
-        "region",
-        "british_isles"
-    )
-
-    talkgroups = load_talkgroups(environment)
-
     if "reflector" not in model:
         model["reflector"] = {}
 
+    existing = model["reflector"].get("monitor_tg_defs", [])
     selected = model["reflector"].get("monitor_tgs", [])
 
-    if request.method == "POST":
-        selected = request.form.getlist("monitor_tgs")
+    monitor_rows = []
 
-        if len(selected) > 6:
+    for index in range(6):
+        row = existing[index] if index < len(existing) else {}
+
+        tg_id = row.get("id", "")
+        label = row.get("label", "")
+
+        monitor_rows.append({
+            "id": tg_id,
+            "label": label,
+            "enabled": tg_id in selected,
+        })
+
+    if request.method == "POST":
+        updated_defs = []
+        updated_selected = []
+
+        for index in range(6):
+            tg_id = request.form.get(f"id_{index}", "").strip()
+            label = request.form.get(f"label_{index}", "").strip()
+            enabled = request.form.get(f"enabled_{index}") == "yes"
+
+            if tg_id or label:
+                updated_defs.append({
+                    "id": tg_id,
+                    "label": label,
+                })
+
+            if enabled and tg_id:
+                updated_selected.append(tg_id)
+
+        if len(updated_selected) > 6:
             error = "Please select no more than six monitoring talkgroups."
         else:
-            model["reflector"]["monitor_tgs"] = selected
+            model["reflector"]["monitor_tg_defs"] = updated_defs
+            model["reflector"]["monitor_tgs"] = updated_selected
+
             save_node_model(model)
+
             return redirect(url_for("status_page"))
 
     return render_template(
         "monitor_tgs.html",
         model=model,
-        talkgroups=talkgroups,
-        selected=selected,
+        monitor_rows=monitor_rows,
         error=error,
-    )
-    
+    )   
 @app.route("/dtmf", methods=["POST"])
 def dtmf_page():
     command = request.form.get("command", "").strip()
