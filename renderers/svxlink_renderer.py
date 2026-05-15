@@ -508,7 +508,7 @@ def render_reflector_logic(model):
 
     if isinstance(monitor_tgs, list):
         monitor_tgs = ",".join(
-        str(x) for x in monitor_tgs
+            str(x) for x in monitor_tgs
     )
 
     if not monitor_tgs:
@@ -570,7 +570,11 @@ def render_svxlink_config(model):
         if node_type == "repeater"
         else "SimplexLogic"
     )
+    logics = logic_name
 
+    if model.get("reflector", {}).get("enabled"):
+        logics = f"{logic_name},ReflectorLogic"
+        
     reflector_enabled = model.get("reflector", {}).get("enabled")
 
     links_line = (
@@ -580,7 +584,7 @@ def render_svxlink_config(model):
     )
 
     values = {
-        "LOGICS": logic_name,
+        "LOGICS": logics,
         "LINKS_LINE": links_line,
 
         "ACTIVE_LOGIC_SECTION": render_active_logic(model),
