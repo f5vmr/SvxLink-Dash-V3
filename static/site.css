@@ -1081,6 +1081,7 @@ footer a:hover {
     font-weight: 600;
     font-size: 13px;
     padding: 4px 12px;
+    min-width: 7rem;
     text-decoration: none;
     margin: 4px;
     cursor: pointer;
