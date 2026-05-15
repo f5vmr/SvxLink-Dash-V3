@@ -23,8 +23,14 @@
 
         {% if build_result %}
             {% if build_result.success %}
-                <p class="success">SvxLink configuration built successfully.</p>
-            {% else %}
+                    <p class="success">SvxLink configuration built successfully.</p>
+
+                    <div class="button-row">
+                        <a class="button-primary" href="{{ url_for('status_page') }}">
+                            Open Dashboard
+                        </a>
+                    </div>
+                {% else %}
                 <p class="error">Build or launch failed.</p>
 
                 {% if build_result.validation_errors %}
