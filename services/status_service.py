@@ -46,17 +46,20 @@ def get_system_uptime():
     return " ".join(parts)
 
 
-def get_connected_reflector():
+def get_connected_reflector(model=None):
     """
-    Attempt to determine connected reflector.
-
-    Initial implementation:
-    parse svxlink log tail.
-
-    This will evolve later.
+    Determine reflector connection state.
     """
 
     log_file = Path("/var/log/svxlink.log")
+
+    reflector_name = "Unknown"
+
+    if model:
+        reflector_name = (
+            model.get("reflector", {})
+            .get("name", "Unknown")
+        )
 
     if not log_file.exists():
         return "unknown"
@@ -70,15 +73,23 @@ def get_connected_reflector():
     except Exception:
         return "unknown"
 
-    lines.reverse()
+    for line in reversed(lines[-500:]):
 
-    for line in lines[:200]:
+        lower = line.lower()
 
-        if "ReflectorLogic: Connected to" in line:
-            return line.split("Connected to")[-1].strip()
+        if "reflectorlogic" not in lower:
+            continue
+
+        if (
+            "disconnected" in lower
+            or "connection failed" in lower
+        ):
+            return "not connected"
+
+        if "authentication ok" in lower:
+            return f"Connected ({reflector_name})"
 
     return "not connected"
-
 
 def get_runtime_status(model):
     """
@@ -100,7 +111,7 @@ def get_runtime_status(model):
 
         "uptime": get_system_uptime(),
 
-        "reflector": get_connected_reflector(),
+        "reflector": get_connected_reflector(model),
 
         "modules": model.get("modules", {}).get(
             "enabled",
