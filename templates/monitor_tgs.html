@@ -2,84 +2,78 @@
 <html lang="en" class="light-theme">
 <head>
     <meta charset="UTF-8">
-
     <title>Monitoring Talkgroups</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='site.css') }}">
-
-    <link rel="icon"
-          href="{{ url_for('static', filename='svxlink.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
 </head>
 
 <body>
-
 <main class="page">
 
 <section class="card dashboard-container">
 
     <div class="dashboard-header">
         <h1>Monitoring Talkgroups</h1>
-
-        <p>
-            Select up to six monitored talkgroups.
-        </p>
+        <p>Edit and select up to six monitored talkgroups.</p>
     </div>
+
+    {% include "navbar.html" %}
 
     {% if error %}
         <p class="error">{{ error }}</p>
     {% endif %}
 
+    <div class="form-section">
+        <p>
+            Monitoring too many talkgroups can overpopulate the node with reflector
+            traffic, increase CPU activity, and make operation less predictable on
+            smaller systems. Six monitored talkgroups is a practical upper limit.
+        </p>
+    </div>
+
     <form method="post">
 
         <table class="dashboard-table">
-
             <thead>
                 <tr>
-                    <th>Enable</th>
+                    <th>Monitor</th>
                     <th>Talkgroup</th>
                     <th>Description</th>
                 </tr>
             </thead>
 
             <tbody>
-
-            {% for tg in talkgroups %}
-
+            {% for row in monitor_rows %}
                 <tr>
-
                     <td>
                         <input type="checkbox"
-                               name="monitor_tgs"
-                               value="{{ tg.id }}"
-                               {% if tg.id in selected %}
-                                   checked
-                               {% endif %}>
+                               name="enabled_{{ loop.index0 }}"
+                               value="yes"
+                               {% if row.enabled %}checked{% endif %}>
                     </td>
 
                     <td>
-                        {{ tg.id }}
+                        <input class="dtmf-command"
+                               type="text"
+                               name="id_{{ loop.index0 }}"
+                               value="{{ row.id }}">
                     </td>
 
                     <td>
-                        {{ tg.label }}
+                        <input class="dtmf-command"
+                               type="text"
+                               name="label_{{ loop.index0 }}"
+                               value="{{ row.label }}">
                     </td>
-
                 </tr>
-
             {% endfor %}
-
             </tbody>
-
         </table>
 
         <div class="tg-button-row">
-
-            <button class="tg-button tg-green"
-                    type="submit">
+            <button class="tg-button tg-green" type="submit">
                 Save Monitoring Talkgroups
             </button>
-
         </div>
 
     </form>
@@ -92,6 +86,5 @@
 </section>
 
 </main>
-
 </body>
 </html>
