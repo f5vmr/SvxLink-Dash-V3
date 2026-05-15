@@ -14,20 +14,20 @@
 <body>
 
 <main class="page">
-    {% include "navbar.html" %}
+   
 
     <section class="card dashboard-container">
 
         <div class="dashboard-header">
             <h1>
-                SvxLink Node Status
+                {{ status.callsign }} Node Status
             </h1>
 
             <p>
                 Live runtime monitoring
             </p>
         </div>
-
+         {% include "navbar.html" %}
         <div class="dashboard-grid">
 
             <div class="dashboard-panel">
