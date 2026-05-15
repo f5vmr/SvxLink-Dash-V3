@@ -13,7 +13,7 @@ from data.talkgroups import TALKGROUPS
 CONFIG_DIR = Path("/opt/dashboard/config")
 
 TALKGROUP_FILE = CONFIG_DIR / "talkgroups.json"
-MAX_TALKGROUP_BUTTONS = 20
+MAX_TALKGROUP_BUTTONS = 18
 
 def ensure_config_dir():
     """
@@ -90,7 +90,7 @@ def save_talkgroups(environment, talkgroups):
 
 def pad_talkgroups(talkgroups):
     """
-    Ensure the dashboard always has 20 editable button slots.
+    Ensure the dashboard always has 18 editable button slots.
     """
 
     padded = list(talkgroups[:MAX_TALKGROUP_BUTTONS])
