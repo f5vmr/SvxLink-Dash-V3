@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from flask import Flask, render_template, request, redirect, url_for
+from flask import jsonify
 from pathlib import Path
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
@@ -852,6 +853,17 @@ def status_page():
         talkgroups=talkgroups,
         
     )
+@app.route("/api/status", methods=["GET"])
+def api_status_page():
+    model = load_node_model()
+
+    status = get_runtime_status(model)
+    activity = get_reflector_activity()
+
+    return jsonify({
+        "status": status,
+        "activity": activity,
+    })
 @app.route("/talkgroups", methods=["GET", "POST"])
 def talkgroups_page():
     model = load_node_model()
