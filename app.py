@@ -13,6 +13,7 @@ from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
+from services.svxlink_service import restart_svxlink
 import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
@@ -1025,14 +1026,64 @@ def echolink_edit_page():
         ).strip()
 
         save_node_model(model)
-
-        return redirect(url_for("status_page"))
+        restart_svxlink()
+        
+        return redirect(url_for("echolink_edit_page"))
 
     return render_template(
         "echolink_edit.html",
         echolink=echolink,
         error=error,
-    )   
+    )
+@app.route("/edit/metar", methods=["GET", "POST"])
+def metar_edit_page():
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    model = load_node_model()
+
+    if "metar" not in model:
+        model["metar"] = {}
+
+    metar = model["metar"]
+
+    error = None
+
+    if request.method == "POST":
+
+        metar["enabled"] = (
+            request.form.get("enabled") == "yes"
+        )
+
+        metar["startdefault"] = request.form.get(
+            "startdefault",
+            ""
+        ).strip().upper()
+
+        airports = request.form.get(
+            "airports",
+            ""
+        )
+
+        metar["airports"] = [
+            x.strip().upper()
+            for x in airports.split(",")
+            if x.strip()
+        ][:6]
+
+        save_node_model(model)
+
+        restart_svxlink()
+
+        return redirect(url_for("metar_edit_page"))
+
+    return render_template(
+        "metar_edit.html",
+        metar=metar,
+        error=error,
+    )
+
 @app.route("/dtmf", methods=["POST"])
 def dtmf_page():
     command = request.form.get("command", "").strip()
