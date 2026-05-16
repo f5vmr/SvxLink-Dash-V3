@@ -38,51 +38,51 @@
 
             <div class="dashboard-panel">
 
-                <div class="status-box">
-
-                    <div class="status-box-title">
-                        Node
-                    </div>
-
-                    <div class="status-box-row">
-                        {{ status.callsign }}
-                    </div>
-
-                    <div class="status-box-row">
-                        {{ status.node_type }}
-                    </div>
-
+            <div class="status-box">
+            
+                <div class="status-box-title">
+                    Service
                 </div>
-
-                <div class="status-box">
-
-                    <div class="status-box-title">
-                        Service
-                    </div>
-
-                    <div class="status-box-row
-                        {% if status.service_status == 'active' %}
-                            status-good
-                        {% else %}
-                            status-bad
-                        {% endif %}
-                    ">
-                        {{ status.service_status }}
-                    </div>
-
+            
+                <div class="status-box-row
+                    {% if status.service_status == 'active' %}
+                        status-good
+                    {% else %}
+                        status-bad
+                    {% endif %}
+                ">
+                    {{ status.service_status }}
                 </div>
-
-                <div class="status-box">
-
-                    <div class="status-box-title">
-                        Uptime
-                    </div>
-
-                    <div class="status-box-row">
-                        {{ status.uptime }}
-                    </div>
-
+            
+            </div>
+            
+            <div class="status-box">
+            
+                <div class="status-box-title">
+                    Radio Status
                 </div>
+            
+                <div class="status-box-row {{ status.radio_state.class }}">
+                    {{ status.radio_state.label }}
+                </div>
+            
+                <div class="status-box-row">
+                    Input: {{ status.radio_state.input }}
+                </div>
+            
+            </div>
+            
+            <div class="status-box">
+            
+                <div class="status-box-title">
+                    Uptime
+                </div>
+            
+                <div class="status-box-row">
+                    {{ status.uptime }}
+                </div>
+            
+            </div>
 
             </div>
 
@@ -120,8 +120,6 @@
 
         </div>
         <div class="dashboard-panel">
-
-<div class="dashboard-panel">
 
     <div class="status-box-title">
         SVXReflector Activity

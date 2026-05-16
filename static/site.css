@@ -1162,3 +1162,20 @@ footer a:hover {
     50% { background: #ffcc00; }
     100% { background: #fff3cd; }
 }
+.radio-standby {
+    background: #c8e6c9;
+    color: #006400;
+    font-weight: bold;
+}
+
+.radio-rx {
+    background: #ffcc80;
+    color: #7a3e00;
+    font-weight: bold;
+}
+
+.radio-tx {
+    background: #f44336;
+    color: #ffffff;
+    font-weight: bold;
+}

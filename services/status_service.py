@@ -91,6 +91,83 @@ def get_connected_reflector(model=None):
 
     return "not connected"
 
+    def get_radio_state():
+        """
+        Determine current radio state from recent SvxLink log lines.
+    
+        TX state is detected from either Tx1 or MultiTx messages.
+        RX/input state is detected from Rx1 squelch messages.
+        """
+
+    log_file = Path("/var/log/svxlink.log")
+
+    tx_active = False
+    rx_open = False
+
+    if not log_file.exists():
+        return {
+            "label": "Listening",
+            "input": "Unknown",
+            "class": "radio-standby",
+            "tx": False,
+            "rx": False,
+        }
+
+    try:
+        lines = log_file.read_text(
+            encoding="utf-8",
+            errors="ignore"
+        ).splitlines()
+
+    except Exception:
+        return {
+            "label": "Listening",
+            "input": "Unknown",
+            "class": "radio-standby",
+            "tx": False,
+            "rx": False,
+        }
+
+    for line in reversed(lines[-300:]):
+        lower = line.lower()
+
+        if "turning the transmitter off" in lower:
+            tx_active = False
+            break
+
+        if "turning the transmitter on" in lower:
+            tx_active = True
+            break
+
+    for line in reversed(lines[-300:]):
+        lower = line.lower()
+
+        if "rx1: the squelch is closed" in lower:
+            rx_open = False
+            break
+
+        if "rx1: the squelch is open" in lower:
+            rx_open = True
+            break
+
+    if tx_active:
+        label = "Transmitting"
+        css_class = "radio-tx"
+    elif rx_open:
+        label = "Receiving"
+        css_class = "radio-rx"
+    else:
+        label = "Listening"
+        css_class = "radio-standby"
+
+    return {
+        "label": label,
+        "input": "Open" if rx_open else "Closed",
+        "class": css_class,
+        "tx": tx_active,
+        "rx": rx_open,
+    }
+    
 def get_runtime_status(model):
     """
     Collect dashboard runtime information.
@@ -118,6 +195,8 @@ def get_runtime_status(model):
             []
         ),
         "recent_log": get_recent_log_lines(),
+        
+        "radio_state": get_radio_state(),
     }
 def get_recent_log_lines(limit=40):
     """
@@ -139,3 +218,77 @@ def get_recent_log_lines(limit=40):
         return [f"Unable to read log file: {exc}"]
 
     return lines[-limit:]    
+def get_radio_state():
+    """
+    Determine current radio state from recent SvxLink log lines.
+
+    Priority:
+    TX active > RX active > standby
+    """
+
+    log_file = Path("/var/log/svxlink.log")
+
+    if not log_file.exists():
+        return {
+            "state": "standby",
+            "label": "Standby",
+            "class": "radio-standby",
+        }
+
+    try:
+        lines = log_file.read_text(
+            encoding="utf-8",
+            errors="ignore"
+        ).splitlines()
+
+    except Exception:
+        return {
+            "state": "standby",
+            "label": "Standby",
+            "class": "radio-standby",
+        }
+
+    tx_on = False
+    rx_open = False
+
+    for line in reversed(lines[-300:]):
+        lower = line.lower()
+
+        if "turning the transmitter off" in lower:
+            tx_on = False
+            break
+
+        if "turning the transmitter on" in lower:
+            tx_on = True
+            break
+
+    for line in reversed(lines[-300:]):
+        lower = line.lower()
+
+        if "squelch closed" in lower or "sql closed" in lower:
+            rx_open = False
+            break
+
+        if "squelch open" in lower or "sql open" in lower:
+            rx_open = True
+            break
+
+    if tx_on:
+        return {
+            "state": "tx",
+            "label": "Transmitting",
+            "class": "radio-tx",
+        }
+
+    if rx_open:
+        return {
+            "state": "rx",
+            "label": "Receiving",
+            "class": "radio-rx",
+        }
+
+    return {
+        "state": "standby",
+        "label": "Standby",
+        "class": "radio-standby",
+    }
