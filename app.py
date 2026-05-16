@@ -919,14 +919,20 @@ def authorise_page():
     error = None
 
     if request.method == "POST":
-        password = request.form.get("password", "")
+            password = request.form.get("password", "")
+            auth = load_node_model().get(
+            "dashboard_auth",
+            {}
+        )
 
-        if password == "admin":
+            stored_user = auth.get("username", "")
+            stored_hash = auth.get("password_hash", "")
+        
             session.permanent = True
             session["authorised"] = True
             return redirect(url_for("status_page"))
 
-        error = "Incorrect password."
+            error = "Incorrect password."
 
     return render_template(
         "authorise.html",
