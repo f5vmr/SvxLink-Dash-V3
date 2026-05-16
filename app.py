@@ -927,9 +927,17 @@ def authorise_page():
 
             stored_user = auth.get("username", "")
             stored_hash = auth.get("password_hash", "")
-        
-            session.permanent = True
-            session["authorised"] = True
+            from werkzeug.security import check_password_hash
+            username = request.form.get("username", "").strip()
+            password = request.form.get("password", "").strip()
+
+            if (
+                username == stored_user
+                and check_password_hash(stored_hash, password)
+            ):
+                session.permanent = True
+                session["authorised"] = True
+
             return redirect(url_for("status_page"))
 
             error = "Incorrect password."
