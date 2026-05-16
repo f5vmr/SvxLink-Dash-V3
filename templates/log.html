@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>SvxLink Log</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+<main class="page">
+
+<section class="card dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>SvxLink Log</h1>
+        <p>Recent diagnostic log output</p>
+    </div>
+
+    {% include "navbar.html" %}
+
+    <div id="tail">
+        {% for line in log_lines %}
+            {{ line }}<br>
+        {% endfor %}
+    </div>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
+    </footer>
+
+</section>
+
+</main>
+</body>
+</html>

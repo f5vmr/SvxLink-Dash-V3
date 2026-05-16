@@ -1317,6 +1317,36 @@ def metar_edit_page():
         metar=metar,
         error=error,
     )
+@app.route("/log", methods=["GET"])
+def log_page():
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    log_file = Path("/var/log/svxlink.log")
+
+    log_lines = []
+
+    try:
+        if log_file.exists():
+
+            lines = log_file.read_text(
+                encoding="utf-8",
+                errors="ignore",
+            ).splitlines()
+
+            log_lines = lines[-250:]
+
+    except Exception as exc:
+
+        log_lines = [
+            f"Failed to read log: {exc}"
+        ]
+
+    return render_template(
+        "log.html",
+        log_lines=log_lines,
+    )
 @app.route("/logout", methods=["GET"])
 def logout_page():
     session.pop("authorised", None)
