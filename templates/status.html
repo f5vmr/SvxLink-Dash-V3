@@ -62,11 +62,13 @@
                     Radio Status
                 </div>
             
-                <div class="status-box-row {{ status.radio_state.class }}">
+                <div class="status-box-row {{ status.radio_state.class }}"
+                    id="radio_state_label">
                     {{ status.radio_state.label }}
                 </div>
             
-                <div class="status-box-row">
+                <div class="status-box-row"
+                    id="radio_squelch_state">
                     Squelch: {{ status.radio_state.input }}
                 </div>
             
@@ -102,7 +104,7 @@
 
                         <tr>
                             <td>Reflector</td>
-                            <td>{{ status.reflector }}</td>
+                            <td id="reflector_state">{{ status.reflector }}</td>
                         </tr>
 
                         <tr>
@@ -137,7 +139,7 @@
             </tr>
         </thead>
 
-        <tbody>
+        <tbody id="activity_body">
             {% for row in activity %}
             <tr class="{% if row.active %}activity-active{% endif %}">
                 <td>{{ row.time }}</td>
@@ -195,6 +197,66 @@
     </section>
 
 </main>
+<script>
+function updateStatusPage(data) {
+    const status = data.status;
+    const activity = data.activity;
 
+    const radioLabel = document.getElementById("radio_state_label");
+    const squelchState = document.getElementById("radio_squelch_state");
+    const reflectorState = document.getElementById("reflector_state");
+    const activityBody = document.getElementById("activity_body");
+
+    if (radioLabel && status.radio_state) {
+        radioLabel.textContent = status.radio_state.label;
+        radioLabel.className = "status-box-row " + status.radio_state.class;
+    }
+
+    if (squelchState && status.radio_state) {
+        squelchState.textContent = "Squelch: " + status.radio_state.input;
+    }
+
+    if (reflectorState) {
+        reflectorState.textContent = status.reflector;
+    }
+
+    if (activityBody) {
+        activityBody.innerHTML = "";
+
+        if (!activity || activity.length === 0) {
+            activityBody.innerHTML = '<tr><td colspan="6">No reflector activity found.</td></tr>';
+            return;
+        }
+
+        activity.forEach(function(row) {
+            const tr = document.createElement("tr");
+
+            if (row.active) {
+                tr.className = "activity-active";
+            }
+
+            tr.innerHTML =
+                "<td>" + row.time + "</td>" +
+                "<td>" + row.callsign + "</td>" +
+                "<td>" + row.tg + "</td>" +
+                "<td>" + row.m + "</td>" +
+                "<td>" + row.a + "</td>" +
+                "<td>" + row.name + "</td>";
+
+            activityBody.appendChild(tr);
+        });
+    }
+}
+
+function pollStatus() {
+    fetch("/api/status")
+        .then(response => response.json())
+        .then(data => updateStatusPage(data))
+        .catch(error => console.log("Status poll failed:", error));
+}
+
+setInterval(pollStatus, 3000);
+pollStatus();
+</script>
 </body>
 </html>
