@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from pyexpat import model
+
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from services.build_svxlink import build_svxlink_configuration
@@ -14,6 +16,16 @@ from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
 from services.svxlink_service import restart_svxlink
+from renderers.svxlink_renderer import (
+    render_echolink_module,
+    render_metar_module,
+)
+
+from services.svxlink_service import (
+    MODULE_DIR,
+    write_text_file,
+    restart_svxlink,
+)
 import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
@@ -1026,14 +1038,22 @@ def echolink_edit_page():
         ).strip()
 
         save_node_model(model)
-        restart_svxlink()
-        
-        return redirect(url_for("echolink_edit_page"))
+        echolink_conf = render_echolink_module(model)
 
+        if echolink_conf:
+            write_text_file(
+                MODULE_DIR / "ModuleEchoLink.conf",
+                echolink_conf
+            )
+    
+        restart_svxlink()
+    
+        return redirect(url_for("echolink_edit_page"))
+    
     return render_template(
-        "echolink_edit.html",
-        echolink=echolink,
-        error=error,
+                "echolink_edit.html",
+                echolink=echolink,
+                error=error,
     )
 @app.route("/edit/metar", methods=["GET", "POST"])
 def metar_edit_page():
@@ -1073,6 +1093,14 @@ def metar_edit_page():
         ][:6]
 
         save_node_model(model)
+
+        metar_conf = render_metar_module(model)
+
+        if metar_conf:
+            write_text_file(
+                MODULE_DIR / "ModuleMetarInfo.conf",
+                metar_conf
+            )
 
         restart_svxlink()
 
