@@ -17,6 +17,7 @@ from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
 from services.svxlink_service import restart_svxlink
+from services.node_info_service import write_node_info_json
 from renderers.svxlink_renderer import (
     render_echolink_module,
     render_metar_module,
@@ -875,7 +876,48 @@ def node_info_page():
         node_info=node_info,
         error=error,
     )
+@app.route("/edit/node-info", methods=["GET", "POST"])
+def node_info_edit_page():
 
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    model = load_node_model()
+
+    if "node_info" not in model:
+        model["node_info"] = {}
+
+    node_info = model["node_info"]
+    error = None
+
+    if request.method == "POST":
+
+        node_info["nodeLocation"] = request.form.get("node_location", "").strip()
+        node_info["qth_name"] = request.form.get("qth_name", "").strip()
+        node_info["sysop"] = request.form.get("sysop", "").strip().upper()
+        node_info["lat"] = request.form.get("lat", "").strip()
+        node_info["long"] = request.form.get("long", "").strip()
+        node_info["locator"] = request.form.get("locator", "").strip().upper()
+        node_info["lat_dms"] = request.form.get("lat_dms", "").strip()
+        node_info["long_dms"] = request.form.get("long_dms", "").strip()
+        node_info["rx_freq"] = request.form.get("rx_freq", "").strip()
+        node_info["tx_freq"] = request.form.get("tx_freq", "").strip()
+        node_info["tx_power"] = request.form.get("tx_power", "").strip()
+        node_info["antenna"] = request.form.get("antenna", "").strip()
+        node_info["antenna_height"] = request.form.get("antenna_height", "").strip()
+        node_info["antenna_direction"] = request.form.get("antenna_direction", "").strip()
+
+        save_node_model(model)
+        write_node_info_json(model)
+        restart_svxlink()
+
+        return redirect(url_for("node_info_edit_page"))
+
+    return render_template(
+        "node_info_edit.html",
+        node_info=node_info,
+        error=error,
+    )
 @app.route("/review", methods=["GET", "POST"])
 def review_page():
     model = load_node_model()
@@ -966,6 +1008,8 @@ def done():
 @app.route("/launch", methods=["POST"])
 def launch():
     model = load_node_model()
+
+    write_node_info_json(model)
 
     result = build_svxlink_configuration(
         model,
