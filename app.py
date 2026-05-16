@@ -786,7 +786,8 @@ def reflector_page():
 @app.route("/review", methods=["GET", "POST"])
 def review_page():
     model = load_node_model()
-
+    if not model.get("dashboard_auth", {}).get("password_hash"):
+        return redirect(url_for("setup_auth_page"))
     if request.method == "POST":
         return redirect(url_for("build_page"))
 
@@ -962,7 +963,10 @@ def api_status_page():
     })
 @app.route("/talkgroups", methods=["GET", "POST"])
 def talkgroups_page():
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))    
     model = load_node_model()
+        
 
     environment = model.get(
         "environment",
@@ -1002,6 +1006,8 @@ def talkgroups_page():
     )
 @app.route("/monitor-tgs", methods=["GET", "POST"])
 def monitor_tgs_page():
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
     model = load_node_model()
     error = None
 
