@@ -1229,3 +1229,43 @@ footer a:hover {
     color: #002d62;
     font-weight: bold;
 }
+.manual-dtmf-panel {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    background: #f4f4f4;
+}
+
+.manual-dtmf-title {
+    text-align: center;
+    font-weight: bold;
+    color: #002d62;
+    margin-bottom: 0.75rem;
+}
+
+.manual-dtmf-form {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.manual-dtmf-input {
+    width: 220px;
+    padding: 0.5rem;
+    border: 2px solid #c9b400;
+    border-radius: 6px;
+    background: #fff9c4;
+    font-weight: bold;
+    text-align: center;
+}
+
+.manual-dtmf-help {
+    font-size: 0.9rem;
+    color: #333333;
+}
+
+.manual-dtmf-help p {
+    margin: 0.5rem 0;
+}
