@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-from flask import Flask, render_template, request, redirect, url_for
-from flask import jsonify
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
 from services.model_store import (
     load_node_model,
     save_node_model,
-    reset_node_model,
 )
 from services.talkgroup_service import load_talkgroups, save_talkgroups
 from services.dtmf_service import send_dtmf
@@ -19,7 +17,6 @@ import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
 from data.timezones import TIMEZONES
-from data.talkgroups import TALKGROUPS
 
 
 
@@ -70,7 +67,7 @@ app = Flask(
     static_folder=str(STATIC_DIR),
     static_url_path="/static"
 )
-
+app.secret_key = "change-this-dashboard-secret"
 
 # =========================================================
 # Platform detection
@@ -856,6 +853,24 @@ def status_page():
         talkgroups=talkgroups,
         system_info=system_info,
     )
+@app.route("/authorise", methods=["GET", "POST"])
+def authorise_page():
+    error = None
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+
+        if password == "admin":
+            session["authorised"] = True
+            return redirect(url_for("status_page"))
+
+        error = "Incorrect password."
+
+    return render_template(
+        "authorise.html",
+        error=error,
+    )
+
 @app.route("/api/status", methods=["GET"])
 def api_status_page():
     model = load_node_model()
