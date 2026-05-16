@@ -4,6 +4,7 @@ from pyexpat import model
 
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
+from werkzeug.security import generate_password_hash
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
 from services.model_store import (
@@ -81,6 +82,9 @@ app = Flask(
     static_url_path="/static"
 )
 app.secret_key = "change-this-dashboard-secret"
+
+from datetime import timedelta
+app.permanent_session_lifetime = timedelta(minutes=15)
 
 # =========================================================
 # Platform detection
@@ -809,6 +813,50 @@ def build_page():
         build_result=result,
     )
 
+@app.route("/setup-auth", methods=["GET", "POST"])
+def setup_auth_page():
+
+    model = load_node_model()
+
+    auth = model.get(
+        "dashboard_auth",
+        {}
+    )
+
+    error = None
+
+    if request.method == "POST":
+
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
+
+        password = request.form.get(
+            "password",
+            ""
+        ).strip()
+
+        if not username or not password:
+
+            error = "Username and password are required."
+
+        else:
+
+            model["dashboard_auth"] = {
+                "username": username,
+                "password_hash": generate_password_hash(password),
+            }
+
+            save_node_model(model)
+
+            return redirect("/review")
+
+    return render_template(
+        "setup_auth.html",
+        auth=auth,
+        error=error,
+    )
 
 @app.route("/done", methods=["GET"])
 def done():
@@ -874,6 +922,7 @@ def authorise_page():
         password = request.form.get("password", "")
 
         if password == "admin":
+            session.permanent = True
             session["authorised"] = True
             return redirect(url_for("status_page"))
 

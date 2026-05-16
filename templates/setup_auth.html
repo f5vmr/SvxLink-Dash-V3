@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Access</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+<section class="card">
+
+    <div class="page-header">
+
+        <img class="page-icon"
+             src="{{ url_for('static', filename='svxlink.ico') }}"
+             alt="SvxLink icon">
+
+        <div class="page-heading">
+            <h1>Dashboard Access</h1>
+            <p>Create credentials for the operational dashboard.</p>
+        </div>
+
+    </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <div class="form-section">
+
+        <p>
+            This system includes an operational dashboard for viewing
+            live SvxLink status and controlling selected runtime functions.
+        </p>
+
+        <p>
+            The public dashboard view can show node status,
+            reflector activity, and talkgroup buttons.
+            Configuration and editing functions are protected.
+        </p>
+
+        <p>
+            Create a dashboard username and password now.
+            These credentials will later be required to edit
+            EchoLink, METAR, talkgroups, monitoring talkgroups,
+            and other runtime configuration pages.
+        </p>
+
+        <p>
+            If the credentials are forgotten,
+            they can be reset locally from the Linux console.
+        </p>
+
+    </div>
+
+    <form method="post">
+
+        <div class="field-group">
+
+            <label class="label">
+                Dashboard Username
+            </label>
+
+            <input class="input-field"
+                   type="text"
+                   name="username"
+                   value="{{ auth.username if auth else '' }}">
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                Dashboard Password
+            </label>
+
+            <input class="input-field"
+                   type="password"
+                   name="password">
+
+        </div>
+
+        <div class="button-row">
+
+            <a class="button-secondary"
+               href="/modules">
+                Back
+            </a>
+
+            <button class="button-primary"
+                    type="submit">
+                Continue
+            </button>
+
+        </div>
+
+    </form>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
+    </footer>
+
+</section>
+
+</main>
+
+</body>
+</html>
