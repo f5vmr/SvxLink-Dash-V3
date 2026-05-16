@@ -189,6 +189,15 @@
                 {% endfor %}
 
         </div>
+        <div class="system-info-panel">
+            <span>Host: {{ system_info.hostname }}</span>
+            <span>IP: {{ system_info.ip }}</span>
+            <span>OS: {{ system_info.os }}</span>
+            <span>Kernel: {{ system_info.kernel }}</span>
+            <span>CPU Temp: {{ system_info.cpu_temp }}</span>
+            <span>Disk: {{ system_info.disk }}</span>
+            <span>Memory: {{ system_info.memory }}</span>
+        </div>
         <footer class="site-footer">
             SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
             SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
