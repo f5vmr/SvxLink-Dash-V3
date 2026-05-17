@@ -1,0 +1,16 @@
+[Unit]
+Description=SvxLink-Dash-V3 Web Configuration Dashboard
+After=network.target svxlink.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=svxlink
+Group=svxlink
+WorkingDirectory=/opt/dashboard
+ExecStart=/usr/bin/python3 /opt/dashboard/app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
