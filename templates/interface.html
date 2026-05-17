@@ -42,6 +42,11 @@
                     <label for="hybrid">Hybrid - SQL uses GPIOD, PTT uses HIDRAW</label>
                 </div>
                 {% endif %}
+                <div class="radio-row">
+                <input type="radio" id="serial" name="interface_mode" value="serial"
+                {% if model.interface.mode == 'serial' %}checked{% endif %}>
+                <label for="serial">Serial - SQL and PTT use serial control pins</label>
+                </div>
             </div>
             <div class="form-section">
                 <h3>Serial PTT Configuration</h3>
@@ -76,11 +81,7 @@
                     NanoPi-Neo uses the fixed GPIOD hardware layout supplied in the image.
                 </div>
             {% endif %}
-                <div class="radio-row">
-                <input type="radio" id="serial" name="interface_mode" value="serial"
-                {% if model.interface.mode == 'serial' %}checked{% endif %}>
-                <label for="serial">Serial - SQL and PTT use serial control pins</label>
-                </div>
+                
             <div class="button-row">
                 <a class="button-secondary" href="/node">Back</a>
                 <button class="button-primary" type="submit">Continue</button>
