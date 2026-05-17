@@ -110,31 +110,35 @@
 
                 </div>
                 
-                <div class="status-box-row"
-                    id="radio_squelch_state">
-                    Squelch: {{ status.radio_state.input }}
+                <div class="status-box-title">
+                Squelch
                 </div>
-            
-            </div>
-            <div class="status-box">
 
-            <div class="status-box-title">
-                EchoLink
-            </div>
+                <div class="status-box-row"
+                     id="radio_squelch_state">
+                    {{ status.radio_state.input }}
+                </div>
 
-            <div class="status-box-row {{ status.echolink_state.class }}">
-                {{ status.echolink_state.label }}
-            </div>
+                </div>
+                <div class="status-box">
+
+                <div class="status-box-title">
+                    EchoLink
+                </div>
+
+                <div class="status-box-row {{ status.echolink_state.class }}">
+                    {{ status.echolink_state.label }}
+                </div>
 
                 {% if status.echolink_state.station %}
                     <div class="status-box-row">
                     Station: {{ status.echolink_state.station }}
                     </div>
                 {% endif %}
-
-            </div>
-            <div class="status-box">
-            
+                    
+                </div>
+                <div class="status-box">
+                
                 <div class="status-box-title">
                     Uptime
                 </div>
@@ -143,8 +147,6 @@
                     {{ status.uptime }}
                 </div>
             
-            </div>
-
             </div>
 
         
