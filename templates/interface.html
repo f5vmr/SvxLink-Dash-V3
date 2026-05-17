@@ -61,7 +61,7 @@
                     <input class="input-field"
                            type="text"
                            name="serial_ptt_port"
-                           value="{{ model.serial.ptt_port }}">
+                           value="{{ model.get('serial', {}).get('ptt_port', '/dev/ttyS0') }}">
                 </div>
             
                 <div class="field-group">
@@ -69,7 +69,7 @@
                     <input class="input-field"
                            type="text"
                            name="serial_ptt_pin"
-                           value="{{ model.serial.ptt_pin }}">
+                           value="{{ model.get('serial', {}).get('ptt_pin', 'DTRRTS') }}">
                 </div>
             
                 <div class="note">
