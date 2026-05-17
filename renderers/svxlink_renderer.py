@@ -158,7 +158,7 @@ def render_report_ctcss(model):
 
     squelch = model.get("squelch", {})
 
-    if squelch.get("method") not in ("ctcss", "gpiod_ctcss"):
+    if squelch.get("method") != ("ctcss"):
         return ""
 
     freq = squelch.get("ctcss_freq")
@@ -196,7 +196,7 @@ def render_open_on_ctcss_line(model):
     if node_type != "repeater":
         return "#OPEN_ON_CTCSS=1000"
 
-    if squelch.get("method") not in ("ctcss", "gpiod_ctcss"):
+    if squelch.get("method") != ("ctcss"):
         return "#OPEN_ON_CTCSS=1000"
 
     if not squelch.get("ctcss_freq"):
@@ -227,7 +227,11 @@ def render_rx_sql_block(model):
             return "SQL_DET=CTCSS"
 
         return "SQL_DET=GPIOD"
-
+    if squelch_method == "gpiod_ctcss":
+        return "\n".join([
+            "SQL_DET=COMBINE",
+            "SQL_COMBINE=(Rx1:CTCSS)&(Rx1:GPIOD)",
+        ])
     if squelch_method == "ctcss":
         return "SQL_DET=CTCSS"
 
@@ -241,7 +245,7 @@ def render_rx_ctcss_block(model):
 
     squelch = model.get("squelch", {})
 
-    if squelch.get("method") not in ("ctcss", "gpiod_ctcss"):
+    if squelch.get("method") != ("ctcss"):
         return ""
 
     freq = squelch.get("ctcss_freq")
@@ -266,7 +270,8 @@ def render_rx_gpiod_block(model):
     """
     Render RX GPIOD block.
     """
-
+    if model.get("squelch", {}).get("method") == "gpiod_ctcss":
+        return ""
     interface = model.get("interface", {})
 
     if interface.get("sql_source") != "gpiod":
@@ -302,8 +307,55 @@ def render_rx_hidraw_block(model):
         f"HID_DEVICE={device}",
         f"HID_SQL_PIN={pin}",
     ])
+def render_rx_combine_sections(model):
+    """
+    Render COMBINE detector subsections.
+    """
 
+    squelch = model.get("squelch", {})
 
+    if squelch.get("method") != "gpiod_ctcss":
+        return ""
+
+    ctcss_block = render_rx_ctcss_combine_block(model)
+    gpiod_block = render_rx_gpiod_combine_block(model)
+
+    return "\n\n".join([
+        ctcss_block,
+        gpiod_block,
+    ])
+def render_rx_ctcss_combine_block(model):
+    squelch = model.get("squelch", {})
+    freq = squelch.get("ctcss_freq")
+
+    if not freq:
+        return ""
+
+    return "\n".join([
+        "[Rx1:CTCSS]",
+        "SQL_DET=CTCSS",
+        "CTCSS_MODE=4",
+        f"CTCSS_FQ={freq}",
+        "#CTCSS_SNR_OFFSET=0",
+        "#CTCSS_SNR_OFFSETS=88.5:-1.0,136.5:-0.5",
+        "#CTCSS_OPEN_THRESH=15",
+        "#CTCSS_CLOSE_THRESH=9",
+        "#CTCSS_BPF_LOW=60",
+        "#CTCSS_BPF_HIGH=270",
+        "#CTCSS_EMIT_TONE_DETECTED=0",
+    ])
+def render_rx_gpiod_combine_block(model):
+    gpio = model.get("gpio", {}).get("sql", {})
+
+    chip = gpio.get("chip", "gpiochip0")
+    line = gpio.get("line", 203)
+
+    return "\n".join([
+        "[Rx1:GPIOD]",
+        "SQL_DET=GPIOD",
+        f"SQL_GPIOD_CHIP={chip}",
+        f"SQL_GPIOD_LINE={line}",
+    ])
 # =========================================================
 # TX rendering
 # =========================================================
@@ -597,6 +649,7 @@ def render_svxlink_config(model):
         "RX_CTCSS_BLOCK": render_rx_ctcss_block(model),
         "RX_GPIOD_BLOCK": render_rx_gpiod_block(model),
         "RX_HIDRAW_BLOCK": render_rx_hidraw_block(model),
+        "RX_COMBINE_SECTIONS": render_rx_combine_sections(model),
 
         "TX_PTT_BLOCK": render_tx_ptt_block(model),
         "TX_CTCSS_BLOCK": render_tx_ctcss_block(model),
