@@ -85,10 +85,17 @@
         </div>
 
         <form action="/review" method="post">
-            <div class="button-row">
-                <a class="button-secondary" href="/reflector">Back</a>
-                <button class="button-primary" type="submit">Proceed to Build</button>
-            </div>
+        <div class="button-row">
+            <a class="button-secondary" href="/reflector">Back</a>
+        
+            <a class="button-secondary" href="{{ url_for('status_page') }}">
+                Return to Dashboard
+            </a>
+        
+            <button class="button-primary" type="submit">
+                Proceed to Build
+            </button>
+        </div>
         </form>
     </section>
     <footer class="site-footer">
