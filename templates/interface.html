@@ -48,6 +48,46 @@
                 <label for="serial">Serial - SQL and PTT use serial control pins</label>
                 </div>
             </div>
+
+            {% if supports_gpiod and model.platform.id != 'nanopi_neo' %}
+            <div class="form-section">
+            
+                <h3>GPIO Line Configuration</h3>
+            
+                <p>
+                    Select the GPIO lines used for hardware squelch and PTT.
+                    Raspberry Pi GPIO choices are limited to GPIO2-GPIO27.
+                </p>
+            
+                <div class="field-group">
+                    <label class="label">SQL GPIO line</label>
+                
+                    <select class="input-field" name="sql_gpio_line">
+                        {% for gpio in gpio_lines %}
+                            <option value="{{ gpio.line }}"
+                                    {% if model.gpio.sql.line|string == gpio.line|string %}selected{% endif %}>
+                                {{ gpio.label }} — {{ gpio.chip }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+                <div class="field-group">
+                    <label class="label">PTT GPIO line</label>
+                
+                    <select class="input-field" name="ptt_gpio_line">
+                        {% for gpio in gpio_lines %}
+                            <option value="{{ gpio.line }}"
+                                    {% if model.gpio.ptt.line|string == gpio.line|string %}selected{% endif %}>
+                                {{ gpio.label }} — {{ gpio.chip }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+            </div>
+
+            {% endif %}
             <div class="form-section">
                 <h3>Serial PTT Configuration</h3>
 

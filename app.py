@@ -18,6 +18,7 @@ from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
 from services.svxlink_service import restart_svxlink
 from services.log_service import get_svxlink_log_path
+from services.gpio_service import flatten_gpio_lines
 from services.node_info_service import write_node_info_json
 from renderers.svxlink_renderer import (
     render_echolink_module,
@@ -388,11 +389,20 @@ def interface_page():
 
         save_node_model(model)
         return redirect(url_for("squelch_page"))
+ 
+    gpio_lines = flatten_gpio_lines()
+    platform_id = model.get("platform", {}).get("id", "unknown")
 
+    supports_gpiod = platform_id in (
+        "raspberry_pi",
+        "nanopi_neo",
+    )
     return render_template(
         "interface.html",
         model=model,
         error=error,
+        supports_gpiod=supports_gpiod,
+        gpio_lines=gpio_lines,
     )
 @app.route("/squelch", methods=["GET", "POST"])
 def squelch_page():
