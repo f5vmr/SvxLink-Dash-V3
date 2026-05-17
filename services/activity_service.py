@@ -8,9 +8,9 @@ Extracts operator-facing reflector talker activity from svxlink.log.
 
 from pathlib import Path
 import re
+from services.log_service import get_svxlink_log_path
 
-
-LOG_FILE = Path("/var/log/svxlink.log")
+LOG_FILE = get_svxlink_log_path()
 
 
 def get_reflector_activity(limit=10):

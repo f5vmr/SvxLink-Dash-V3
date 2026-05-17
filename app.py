@@ -17,6 +17,7 @@ from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
 from services.svxlink_service import restart_svxlink
+from services.log_service import get_svxlink_log_path
 from services.node_info_service import write_node_info_json
 from renderers.svxlink_renderer import (
     render_echolink_module,
@@ -1342,7 +1343,7 @@ def log_page():
     if not session.get("authorised"):
         return redirect(url_for("authorise_page"))
 
-    log_file = Path("/var/log/svxlink.log")
+    log_file = get_svxlink_log_path()
 
     log_lines = []
 
@@ -1372,7 +1373,7 @@ def log_data():
     if not session.get("authorised"):
         return ""
 
-    log_file = Path("/var/log/svxlink.log")
+    log_file = get_svxlink_log_path()
 
     try:
 

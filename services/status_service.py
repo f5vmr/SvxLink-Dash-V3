@@ -12,6 +12,7 @@ import subprocess
 import time
 
 from services.svxlink_service import svxlink_status
+from services.log_service import get_svxlink_log_path
 
 UPTIME_FILE = Path("/proc/uptime")
 
@@ -51,7 +52,7 @@ def get_connected_reflector(model=None):
     Determine reflector connection state.
     """
 
-    log_file = Path("/var/log/svxlink.log")
+    log_file = get_svxlink_log_path()
 
     reflector_name = "Unknown"
 
@@ -99,7 +100,7 @@ def get_radio_state():
         RX/input state is detected from Rx1 squelch messages.
         """
 
-        log_file = Path("/var/log/svxlink.log")
+        log_file = get_svxlink_log_path()
 
         tx_active = False
         rx_open = False
@@ -203,7 +204,7 @@ def get_recent_log_lines(limit=40):
     Return recent SvxLink log lines for dashboard display.
     """
 
-    log_file = Path("/var/log/svxlink.log")
+    log_file = get_svxlink_log_path()
 
     if not log_file.exists():
         return ["Log file not found: /var/log/svxlink.log"]
