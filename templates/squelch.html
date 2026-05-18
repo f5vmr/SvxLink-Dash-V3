@@ -30,12 +30,22 @@
     <form action="/squelch" method="post">
 
         <div class="option-group">
+            <div class="radio-row">
+                <input type="radio"
+                        id="sq_hidraw"
+                        name="squelch_method"
+                        value="hidraw"
+                {% if model.squelch.method == 'hidraw' %}checked{% endif %}>
+                <label for="sq_hidraw">
+                    CM108 Interface (TOADS)
+                </label>
+            </div>
             {% if supports_gpiod %}
             <div class="radio-row">
                 <input type="radio"
-                       id="sq_gpiod"
-                       name="squelch_method"
-                       value="gpiod"
+                        id="sq_gpiod"
+                        name="squelch_method"
+                        value="gpiod"
                        {% if model.squelch.method == 'gpiod' %}checked{% endif %}>
                 <label for="sq_gpiod">
                     GPIOD squelch only
