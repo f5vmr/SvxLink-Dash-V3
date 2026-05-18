@@ -42,7 +42,25 @@
                     Seconds the repeater remains up after SQL closes. Default 10. Longer than 20 is not recommended.
                 </div>
             </div>
-
+            <div class="field-group">
+                <label class="label">Idle tone</label>
+            
+                <select class="input-field" name="idle_tone">
+                    <option value="chime" {% if model.idle_tone == 'chime' %}selected{% endif %}>Chime</option>
+                    <option value="pip" {% if model.idle_tone == 'pip' %}selected{% endif %}>Pip</option>
+                    <option value="silence" {% if model.idle_tone == 'silence' %}selected{% endif %}>Silence</option>
+                </select>
+            </div>
+            
+            <div class="field-group">
+                <label class="label">Close-down tone</label>
+            
+                <select class="input-field" name="down_tone">
+                    <option value="biboop" {% if model.down_tone == 'biboop' %}selected{% endif %}>Bi-boop</option>
+                    <option value="va" {% if model.down_tone == 'va' %}selected{% endif %}>VA barred</option>
+                    <option value="none" {% if model.down_tone == 'none' %}selected{% endif %}>None</option>
+                </select>
+            </div>
             <div class="field-group">
                 <label class="label" for="sql_timeout">SQL timeout</label>
 
@@ -55,7 +73,7 @@
                        value="{{ model.repeater.sql_timeout or 180 }}">
 
                 <div class="note">
-                    Maximum advised transmit time in seconds, there is no cut off. Default 180.
+                    Maximum advised transmit time in seconds, there is no audio cut off. Default 180.
                 </div>
             </div>
 

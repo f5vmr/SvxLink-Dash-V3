@@ -620,6 +620,8 @@ def repeater_page():
         model["repeater"] = {
             "idle_timeout": 10,
             "sql_timeout": 180,
+            "idle_tone": "chime",
+            "down_tone": "biboop",
         }
 
     if "online_control" not in model:
@@ -655,6 +657,8 @@ def repeater_page():
                 model["repeater"] = {
                     "idle_timeout": idle_timeout,
                     "sql_timeout": sql_timeout,
+                    "idle_tone": request.form.get("idle_tone", "chime"),
+                    "down_tone": request.form.get("down_tone", "biboop"),
                 }
 
                 model["online_control"] = {

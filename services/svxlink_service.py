@@ -15,6 +15,11 @@ Rendering belongs in /renderers.
 
 from pathlib import Path
 from datetime import datetime
+from services.svxlink_service import (
+    deploy_required_logic_files,
+    apply_courtesy_tone,
+    apply_repeater_event_customisations,
+)
 import shutil
 import subprocess
 
@@ -207,6 +212,7 @@ def deploy_required_logic_files():
     for filename in (
         "Logic.tcl",
         "RepeaterLogicType.tcl",
+        "CW.tcl",
     ):
         deployed.append(deploy_logic_file(filename))
 
@@ -273,3 +279,97 @@ def apply_courtesy_tone(model):
 
     return logic_tcl
 
+def apply_repeater_event_customisations(model):
+    """
+    Modify local RepeaterLogicType.tcl according to repeater tone choices.
+    """
+
+    repeater = model.get("repeater", {})
+
+    idle_tone = repeater.get("idle_tone", "chime")
+    down_tone = repeater.get("down_tone", "biboop")
+
+    logic_tcl = LOGIC_DIR_DST / "RepeaterLogicType.tcl"
+
+    if not logic_tcl.exists():
+        raise FileNotFoundError(
+            f"RepeaterLogicType.tcl not found: {logic_tcl}"
+        )
+
+    content = logic_tcl.read_text(encoding="utf-8")
+
+    if idle_tone == "chime":
+        content = content.replace(
+            "playTone 1100",
+            "playTone 1190",
+        )
+
+    elif idle_tone == "pip":
+        content = content.replace(
+            "    playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+            "    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+        )
+        content = content.replace(
+            "    playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+            "    # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+        )
+        content = content.replace(
+            "  }\n}",
+            "  }\n  CW::play \"E\"\n}",
+            1,
+        )
+
+    elif idle_tone == "silence":
+        content = content.replace(
+            "    playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+            "    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+        )
+        content = content.replace(
+            "    playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+            "    # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
+        )
+
+    if down_tone in ("va", "none"):
+        content = content.replace(
+            "    playTone 400 900 50",
+            "    # playTone 400 900 50",
+        )
+        content = content.replace(
+            "    playSilence 100",
+            "    # playSilence 100",
+        )
+        content = content.replace(
+            "    playTone 360 900 50",
+            "    # playTone 360 900 50",
+        )
+
+    if down_tone == "va":
+        content = content.replace(
+            "    playSilence 500",
+            "    CW::play \"-\"\n    playSilence 500",
+            1,
+        )
+
+def apply_va_barred_cw_symbol():
+    """
+    Add '-' as VA barred (...-.-) to local CW.tcl.
+    """
+
+    cw_tcl = LOGIC_DIR_DST / "CW.tcl"
+
+    if not cw_tcl.exists():
+        raise FileNotFoundError(
+            f"CW.tcl not found: {cw_tcl}"
+        )
+
+    content = cw_tcl.read_text(encoding="utf-8")
+
+    if '"-" "...-.-"' not in content:
+        content = content.replace(
+            '  "=" "-...-"',
+            '  "=" "-...-"\n  "-" "...-.-"',
+        )
+
+    cw_tcl.write_text(content, encoding="utf-8")
+
+    return cw_tcl

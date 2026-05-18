@@ -12,6 +12,7 @@ This file defines the authoritative configuration model used by:
 
 from copy import deepcopy
 from email import errors
+from xml.parsers.expat import model
 
 
 SUPPORTED_NODE_TYPES = {"simplex", "repeater"}
@@ -29,7 +30,17 @@ SUPPORTED_ROGER_MODES = {
     "morse_t",
     "morse_k",
 }
+SUPPORTED_IDLE_TONES = {
+    "chime",
+    "pip",
+    "silence",
+}
 
+SUPPORTED_DOWN_TONES = {
+    "biboop",
+    "va",
+    "none",
+}
 SUPPORTED_SQUELCH_METHODS = [
     "gpiod",
     "ctcss",
@@ -128,7 +139,8 @@ DEFAULT_MODEL = {
 
         "idle_timeout": 10,
         "sql_timeout": 180,
-
+        "idle_tone": "chime",
+        "down_tone": "biboop",
         "tg_timeout": 60,
 
         "tx_ctcss_mode": "ALWAYS",
@@ -233,7 +245,17 @@ def validate_model(model):
 
     if node_type == "repeater" and roger_mode == "none":
         errors.append("Repeater mode requires a roger tone.")
-        
+
+    idle_tone = model.get("repeater", {}).get("idle_tone")
+
+    if idle_tone not in SUPPORTED_IDLE_TONES:
+        errors.append("Idle tone mode is invalid.")
+
+    down_tone = model.get("repeater", {}).get("down_tone")
+
+    if down_tone not in SUPPORTED_DOWN_TONES:
+        errors.append("Close-down tone mode is invalid.")  
+
     interface_mode = model.get("interface", {}).get("mode")
 
     if interface_mode not in SUPPORTED_INTERFACE_MODES:
