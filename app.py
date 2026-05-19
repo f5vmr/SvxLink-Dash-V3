@@ -71,10 +71,8 @@ SVXLINK_CONF = Path("/etc/svxlink/svxlink.conf")
 
 MODULE_DIR = Path("/etc/svxlink/svxlink.d")
 
-EVENT_SOURCE_DIR = Path("/usr/share/svxlink/events.d")
 
-EVENT_DEST_DIR = Path("/usr/share/svxlink/events.d/local")
-EVENT_FILES = ['Logic.tcl', 'RepeaterLogicType.tcl']
+EVENT_FILES = ['Logic.tcl', 'RepeaterLogicType.tcl', 'CW.tcl']
 # =========================================================
 # Flask app
 # =========================================================
