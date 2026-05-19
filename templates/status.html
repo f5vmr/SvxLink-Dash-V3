@@ -153,11 +153,13 @@
                         {{ status.echolink_state.label }}
                     </div>
                 
+                    <div class="status-box-row"
+                         id="echolink_station"
+                        {% if not status.echolink_state.station %}style="display:none;"{% endif %}>
                     {% if status.echolink_state.station %}
-                        <div class="status-box-row" id="echolink_station">
                             Station: {{ status.echolink_state.station }}
-                        </div>
                     {% endif %}
+                    </div>
                     
                 </div>
             
@@ -311,7 +313,7 @@
 function updateStatusPage(data) {
     const status = data.status;
     const activity = data.activity;
-    const echlinkLabel = document.getElementById("echolink_label");
+    const echolinkLabel = document.getElementById("echolink_label");
     const echolinkStation = document.getElementById("echolink_station");
     const radioLabel = document.getElementById("radio_state_label");
     const squelchState = document.getElementById("radio_squelch_state");
@@ -327,19 +329,21 @@ function updateStatusPage(data) {
         squelchState.textContent = status.radio_state.input;
     }
     if (echolinkLabel && status.echolink_state) {
-        echolinkLabel.textContent = status.echolink_state.label;
-        echolinkLabel.className =
-            "status-box-row " + status.echolink_state.class;
+    echolinkLabel.textContent = status.echolink_state.label;
+    echolinkLabel.className =
+        "status-box-row " + status.echolink_state.class;
     }
 
     if (echolinkStation && status.echolink_state) {
         if (status.echolink_state.station) {
             echolinkStation.textContent =
-            "Station: " + status.echolink_state.station;
+                "Station: " + status.echolink_state.station;
+            echolinkStation.style.display = "block";
         } else {
             echolinkStation.textContent = "";
-        }
+            echolinkStation.style.display = "none";
     }
+}
     if (reflectorState) {
         reflectorState.textContent = status.reflector;
     }
