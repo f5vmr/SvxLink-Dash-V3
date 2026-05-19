@@ -344,13 +344,18 @@ def apply_repeater_event_customisations(model):
 
     idle_pip = """    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
     # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;
-    CW::play "E";"""
+}
+  CW::play "E";"""
 
     if idle_tone == "chime":
         content = content.replace(idle_original, idle_chime, 1)
 
     elif idle_tone == "pip":
-        content = content.replace(idle_original, idle_pip, 1)
+        content = content.replace(
+            idle_original + "\n  }",
+            idle_pip,
+            1,
+        )
 
     elif idle_tone == "silence":
         content = content.replace(idle_original, idle_commented, 1)
