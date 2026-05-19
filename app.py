@@ -855,21 +855,21 @@ def reflector_page():
 
     reflectors = {
         "north_america": {
-            "name": "North America Reflector",
+            "name": "North America",
             "host": "north.america.svxlink.net",
             "port": 35300,
             "url": "https://north.america.svxlink.net",
             "monitor_tgs": 3100,
         },
         "ukwide": {
-            "name": "UKWide Reflector",
+            "name": "UKWide",
             "host": "uk.wide.svxlink.uk",
             "port": 35300,
             "url": "https://ukwide.svxlink.net",
             "monitor_tgs": 235,
         },
         "australia_nz": {
-            "name": "Australia / New Zealand Reflector",
+            "name": "Australia / New Zealand",
             "host": "australia.svxlink.net",
             "port": 35300,
             "url": "https://au.svxlink.net",
