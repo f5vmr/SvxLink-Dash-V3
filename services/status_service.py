@@ -88,7 +88,7 @@ def get_connected_reflector(model=None):
             return "not connected"
 
         if "authentication ok" in lower:
-            return f"Connected ({reflector_name})"
+            return reflector_name
 
     return "not connected"
 
