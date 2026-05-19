@@ -17,6 +17,7 @@ import subprocess
 import os
 import pwd
 import grp
+import re
 from pathlib import Path
 from datetime import datetime
 
@@ -344,18 +345,36 @@ def apply_repeater_event_customisations(model):
 
     idle_pip = """    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
     # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;
-}
-  CW::play "E";"""
+    }
+    CW::play "E";"""
 
     if idle_tone == "chime":
         content = content.replace(idle_original, idle_chime, 1)
 
     elif idle_tone == "pip":
-        content = content.replace(
-            idle_original + "\n  }",
-            idle_pip,
-            1,
-        )
+        content = re.sub(
+        r"""proc repeater_idle \{\} \{
+    set iterations 8;
+    set base 2;
+    set max \[expr \{pow\(\$base, \$iterations\)\}\];
+    for \{set i \$iterations\} \{\$i>0\} \{set i \[expr \$i - 1\]\} \{
+      playTone 1100 \[expr \{round\(pow\(\$base, \$i\) \* 150 / \$max\)\}\] 100;
+      playTone 1200 \[expr \{round\(pow\(\$base, \$i\) \* 150 / \$max\)\}\] 100;
+        \}
+    \}""",
+        """proc repeater_idle {} {
+    set iterations 8;
+    set base 2;
+    set max [expr {pow($base, $iterations)}];
+    for {set i $iterations} {$i>0} {set i [expr $i - 1]} {
+      # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
+      # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;
+        }
+        CW::play "E";
+    }""",
+        content,
+        count=1,
+    )
 
     elif idle_tone == "silence":
         content = content.replace(idle_original, idle_commented, 1)
