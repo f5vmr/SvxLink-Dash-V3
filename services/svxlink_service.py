@@ -258,10 +258,10 @@ def apply_courtesy_tone(model):
         replacement = f"playTone {tone_freq} 800 60"
 
     elif mode == "morse_t":
-        replacement = f'CW::play "T" {cw_cpm} {cw_pitch} {cw_amp}'
+        replacement = f'CW::play "T"'
 
     elif mode == "morse_k":
-        replacement = f'CW::play "K" {cw_cpm} {cw_pitch} {cw_amp}'
+        replacement = f'CW::play "K"'
 
     else:
         replacement = "# playTone 440 500 100"
@@ -311,7 +311,7 @@ def apply_repeater_event_customisations(model):
         )
         content = content.replace(
             "  }\n}",
-            "  }\n  CW::play \"E\"\n}",
+            "  }\n  CW::play \"E\";\n}",
             1,
         )
 
