@@ -12,12 +12,14 @@ This module owns:
 It does NOT generate svxlink.conf.
 Rendering belongs in /renderers.
 """
-
+import shutil
+import subprocess
+import os
+import pwd
+import grp
 from pathlib import Path
 from datetime import datetime
 
-import shutil
-import subprocess
 
 
 # =========================================================
@@ -33,6 +35,7 @@ LOGIC_DIR_SRC = Path("/usr/share/svxlink/events.d")
 LOGIC_DIR_DST = Path("/usr/share/svxlink/events.d/local")
 
 BACKUP_DIR = APP_ROOT / "backups"
+
 
 
 # =========================================================
@@ -168,6 +171,13 @@ def write_text_file(path, content):
 def copy_file(src, dst):
     """
     Copy a file, preserving metadata where possible.
+
+    Ensures:
+    - destination directory exists
+    - directory ownership = svxlink:svxlink
+    - directory mode = 775
+    - copied file ownership = svxlink:svxlink
+    - copied file mode = 664
     """
 
     src = Path(src)
@@ -176,12 +186,22 @@ def copy_file(src, dst):
     if not src.exists():
         raise FileNotFoundError(f"Source file does not exist: {src}")
 
+    uid = pwd.getpwnam("svxlink").pw_uid
+    gid = grp.getgrnam("svxlink").gr_gid
+
     dst.parent.mkdir(parents=True, exist_ok=True)
+
+    # enforce directory ownership/mode
+    os.chown(dst.parent, uid, gid)
+    os.chmod(dst.parent, 0o775)
 
     shutil.copy2(src, dst)
 
-    return dst
+    # enforce file ownership/mode
+    os.chown(dst, uid, gid)
+    os.chmod(dst, 0o664)
 
+    return dst
 
 def deploy_logic_file(filename):
     """
@@ -233,14 +253,14 @@ def apply_courtesy_tone(model):
         raise FileNotFoundError(f"Logic.tcl not found: {logic_tcl}")
 
     courtesy = model.get("courtesy", {})
-    cw = model.get("cw", {})
+    #cw = model.get("cw", {})
 
     mode = courtesy.get("mode", "none")
     tone_freq = courtesy.get("frequency", 800)
 
-    cw_amp = cw.get("amp", -10)
-    cw_pitch = cw.get("pitch", 650)
-    cw_cpm = cw.get("cpm", 95)
+    # cw_amp = cw.get("amp", -10)
+    # cw_pitch = cw.get("pitch", 650)
+    # cw_cpm = cw.get("cpm", 95)
 
     content = logic_tcl.read_text(encoding="utf-8")
 
@@ -346,6 +366,10 @@ def apply_repeater_event_customisations(model):
             1,
         )
 
+    logic_tcl.write_text(content, encoding="utf-8")
+    os.chmod(logic_tcl, 0o664)
+
+    return logic_tcl
 def apply_va_barred_cw_symbol():
     """
     Add '-' as VA barred (...-.-) to local CW.tcl.
@@ -367,5 +391,6 @@ def apply_va_barred_cw_symbol():
         )
 
     cw_tcl.write_text(content, encoding="utf-8")
+    os.chmod(cw_tcl, 0o664)
 
     return cw_tcl
