@@ -289,7 +289,10 @@ textarea.input-field:focus {
   color: var(--muted-color);
   font-size: 0.96rem;
 }
-
+.courtesy-note {
+    margin-left: 190px;
+    margin-top: -1rem;
+}
 .error {
   margin-top: 0.75rem;
   color: var(--error-color);
