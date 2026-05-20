@@ -18,13 +18,14 @@
             <div class="page-heading">
                 <h1>Courtesy Tone</h1>
                 <p>Select the courtesy tone behaviour for this node.</p>
-            </div>
-            <div class="note courtesy-note">
-            {% if model.node.type == "repeater" %}
-                Repeater systems require a courtesy tone.
-            {% else %}
-                Courtesy tones are optional for simplex systems.
-            {% endif %}
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
             </div>
         </div>
 
