@@ -246,15 +246,16 @@ def validate_model(model):
     if node_type == "repeater" and roger_mode == "none":
         errors.append("Repeater mode requires a roger tone.")
 
-    idle_tone = model.get("repeater", {}).get("idle_tone")
-
-    if idle_tone not in SUPPORTED_IDLE_TONES:
-        errors.append("Idle tone mode is invalid.")
-
-    down_tone = model.get("repeater", {}).get("down_tone")
-
-    if down_tone not in SUPPORTED_DOWN_TONES:
-        errors.append("Close-down tone mode is invalid.")  
+    if node_type == "repeater":
+        idle_tone = model.get("repeater", {}).get("idle_tone")
+    
+        if idle_tone not in SUPPORTED_IDLE_TONES:
+            errors.append("Idle tone mode is invalid.")
+    
+        down_tone = model.get("repeater", {}).get("down_tone")
+    
+        if down_tone not in SUPPORTED_DOWN_TONES:
+            errors.append("Close-down tone mode is invalid.")  
 
     interface_mode = model.get("interface", {}).get("mode")
 
