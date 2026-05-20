@@ -452,9 +452,9 @@ exists and is writable by user `svxlink`.
 SvxLink-Dash-V3 is written primarily for the following SvxReflector Protocol 2 networks running SvxLink Version 25:
 
 - UKWide
-North America
-Australia
-Other SvxReflector can be considered, but method of user verification and entry of a password will need to be discussed with the prospective SvxReflector Manager.
+- North America
+- Australia
+- Other SvxReflectors can be considered, but method of user verification and entry of a password will need to be discussed with the prospective SvxReflector Manager.
 
 The generated `[ReflectorLogic]` section includes the required base elements for SvxReflector Protocol 3 support, however Protocol 3-specific configuration currently requires manual modification by the system operator.
 
