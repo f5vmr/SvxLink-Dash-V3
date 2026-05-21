@@ -45,6 +45,19 @@ EOF
 chmod 0440 /etc/sudoers.d/svxlink-dash
 visudo -c
 
+cat > /etc/logrotate.d/svxlink <<'EOF'
+/var/log/svxlink.log {
+    weekly
+    rotate 4
+    compress
+    missingok
+    notifempty
+    copytruncate
+}
+EOF
+
+chmod 644 /etc/logrotate.d/svxlink
+chown root:root /etc/logrotate.d/svxlink
 cp "$INSTALL_DIR/install/svxlink-dash.service" /etc/systemd/system/svxlink-dash.service
 systemctl daemon-reload
 systemctl enable svxlink-dash

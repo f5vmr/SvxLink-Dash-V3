@@ -12,7 +12,7 @@ import shlex
 
 DEFAULT_FILE = Path("/etc/default/svxlink")
 
-PREFERRED_LOG = ("/var/log/svxlink.log")
+PREFERRED_LOG = Path("/var/log/svxlink.log")
 LEGACY_LOG = Path("/var/log/svxlink")
 
 
