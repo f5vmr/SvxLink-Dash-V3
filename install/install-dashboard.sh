@@ -39,6 +39,7 @@ svxlink ALL=(root) NOPASSWD: \
     /bin/mkdir, \
     /bin/chown, \
     /bin/chmod, \
+    /bin/git, \
     /bin/install
 EOF
 
