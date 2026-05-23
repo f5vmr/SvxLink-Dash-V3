@@ -34,18 +34,36 @@ cat > /etc/sudoers.d/svxlink-dash <<'EOF'
 # SvxLink-Dash-V3 controlled service permissions
 
 svxlink ALL=(root) NOPASSWD: \
-    /bin/systemctl restart svxlink, \
-    /bin/systemctl is-active svxlink, \
-    /bin/mkdir, \
-    /bin/chown, \
-    /bin/chmod, \
-    /bin/git, \
-    /bin/install
+    /usr/bin/systemctl restart svxlink, \
+    /usr/bin/systemctl is-active svxlink, \
+    /usr/bin/mkdir, \
+    /usr/bin/chown, \
+    /usr/bin/chmod, \
+    /usr/bin/git, \
+    /usr/bin/nmcli, \
+    /usr/bin/install
 EOF
 
 
 chmod 0440 /etc/sudoers.d/svxlink-dash
 visudo -c
+# Wifi install
+echo "Creating NetworkManager hotspot profile..."
+
+nmcli connection add \
+    type wifi \
+    ifname wlan0 \
+    con-name Hotspot \
+    autoconnect no \
+    ssid svxlink || true
+
+nmcli connection modify Hotspot \
+    802-11-wireless.mode ap \
+    802-11-wireless.band bg \
+    ipv4.method shared \
+    wifi-sec.key-mgmt wpa-psk \
+    wifi-sec.psk "svxlink" || true
+#end- Wifi profile
 
 cat > /etc/logrotate.d/svxlink <<'EOF'
 /var/log/svxlink.log /var/log/svxlink {
