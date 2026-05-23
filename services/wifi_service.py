@@ -74,14 +74,46 @@ def hotspot_status():
     ])
 
 def connect_wifi(ssid, password):
-    return run_nmcli([
-        "dev",
-        "wifi",
-        "connect",
-        ssid,
-        "password",
-        password,
+    output = []
+
+    output += run_nmcli([
+        "connection",
+        "down",
+        "Hotspot",
     ])
+
+    output += run_nmcli([
+        "connection",
+        "add",
+        "type",
+        "wifi",
+        "con-name",
+        ssid,
+        "ifname",
+        "wlan0",
+        "ssid",
+        ssid,
+    ])
+
+    output += run_nmcli([
+        "connection",
+        "modify",
+        ssid,
+        "wifi-sec.key-mgmt",
+        "wpa-psk",
+        "wifi-sec.psk",
+        password,
+        "connection.autoconnect",
+        "yes",
+    ])
+
+    output += run_nmcli([
+        "connection",
+        "up",
+        ssid,
+    ])
+
+    return output
     
 def start_hotspot():
     return run_nmcli([
