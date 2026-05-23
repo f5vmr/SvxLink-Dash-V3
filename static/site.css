@@ -1322,3 +1322,10 @@ footer a:hover {
     overflow-y: auto;
     white-space: pre-wrap;
 }
+.wifi-output {
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre;
+    overflow-x: auto;
+    min-height: 320px;
+}
