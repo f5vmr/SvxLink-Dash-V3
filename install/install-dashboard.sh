@@ -48,6 +48,47 @@ EOF
 chmod 0440 /etc/sudoers.d/svxlink-dash
 visudo -c
 # Wifi install
+# -------------------------------------------------
+# Install network failsafe helper
+# -------------------------------------------------
+
+install -o root -g root -m 755 \
+    network_failsafe.py \
+    /opt/dashboard/services/network_failsafe.py
+
+# -------------------------------------------------
+# Install systemd service
+# -------------------------------------------------
+
+cat > /etc/systemd/system/network-failsafe.service <<'EOF'
+[Unit]
+Description=SvxLink Dashboard Network Failsafe
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/dashboard/services/network_failsafe.py
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+chmod 644 /etc/systemd/system/network-failsafe.service
+chown root:root /etc/systemd/system/network-failsafe.service
+
+# -------------------------------------------------
+# Enable failsafe service
+# -------------------------------------------------
+
+systemctl daemon-reload
+systemctl enable --now network-failsafe.service
+
+# -------------------------------------------------
+# Create hotspot profile
+# -------------------------------------------------
+
 echo "Creating NetworkManager hotspot profile..."
 
 nmcli connection add \
