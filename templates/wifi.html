@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>WiFi Configuration</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+<section class="card">
+
+    <div class="page-header">
+
+        <img class="page-icon"
+             src="{{ url_for('static', filename='svxlink.ico') }}"
+             alt="SvxLink icon">
+
+        <div class="page-heading">
+            <h1>WiFi Configuration</h1>
+            <p>Manage wireless networking for this node.</p>
+        </div>
+
+    </div>
+
+    <form method="post">
+
+        <div class="button-row">
+
+            <button class="button-primary"
+                    name="btnScan"
+                    type="submit">
+                Air Scan
+            </button>
+
+            <button class="button-secondary"
+                    name="btnConnList"
+                    type="submit">
+                Connection List
+            </button>
+
+            <button class="button-secondary"
+                    name="btnWifiStatus"
+                    type="submit">
+                WiFi Status
+            </button>
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                SSID
+            </label>
+
+            <input class="input-field"
+                   type="text"
+                   name="ssid"
+                   value="{{ ssid }}">
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                Password
+            </label>
+
+            <input class="input-field"
+                   type="password"
+                   name="password"
+                   value="{{ password }}">
+
+        </div>
+
+        <div class="button-row">
+
+            <button class="button-primary"
+                    name="btnAdd"
+                    type="submit">
+                Add & Connect
+            </button>
+
+            <button class="button-secondary"
+                    name="btnSwitch"
+                    type="submit">
+                Switch
+            </button>
+
+            <button class="button-secondary"
+                    name="btnDelete"
+                    type="submit">
+                Delete
+            </button>
+
+        </div>
+
+        <div class="form-section">
+
+            <textarea
+                class="input-field"
+                rows="16"
+                readonly
+            >{{ screen | join('\n') }}</textarea>
+
+        </div>
+
+    </form>
+
+</section>
+
+</main>
+
+</body>
+</html>

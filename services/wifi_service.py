@@ -36,3 +36,64 @@ def wifi_status():
 def wifi_on():
     run_nmcli(["radio", "wifi", "on"])
     return run_nmcli(["radio", "wifi"])
+
+def connect_wifi(ssid, password):
+    return run_nmcli([
+        "dev", "wifi", "connect",
+        ssid,
+        "password",
+        password,
+    ])
+
+
+def switch_wifi(ssid):
+    output = []
+
+    output += run_nmcli([
+        "con",
+        "modify",
+        ssid,
+        "connection.autoconnect",
+        "yes",
+    ])
+
+    output += run_nmcli([
+        "con",
+        "up",
+        ssid,
+    ])
+
+    return output
+
+
+def delete_wifi(ssid):
+    return run_nmcli([
+        "con",
+        "delete",
+        ssid,
+    ])
+def hotspot_status():
+    return run_nmcli([
+        "-t",
+        "-f",
+        "NAME,TYPE,DEVICE",
+        "connection",
+        "show",
+        "--active",
+    ])
+
+
+def start_hotspot():
+    return run_nmcli([
+        "connection",
+        "up",
+        "Hotspot",
+    ])
+
+
+def stop_hotspot():
+    return run_nmcli([
+        "connection",
+        "down",
+        "Hotspot",
+    ])

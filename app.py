@@ -12,6 +12,20 @@ from services.model_store import (
     load_node_model,
     save_node_model,
 )
+## Wifi
+from services.wifi_service import (
+    wifi_scan,
+    connection_list,
+    wifi_status,
+    wifi_on,
+    connect_wifi,
+    switch_wifi,
+    delete_wifi,
+    hotspot_status,
+    start_hotspot,
+    stop_hotspot,
+)
+
 from services.talkgroup_service import load_talkgroups, save_talkgroups
 from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
@@ -1016,6 +1030,54 @@ def node_info_page():
         node_info=node_info,
         error=error,
     )
+## Wifi
+@app.route("/wifi", methods=["GET", "POST"])
+def wifi_page():
+    screen = []
+    ssid = ""
+    password = ""
+
+    if request.method == "POST":
+        ssid = request.form.get("ssid", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if "btnScan" in request.form:
+            screen = wifi_scan()
+
+        elif "btnConnList" in request.form:
+            screen = connection_list()
+
+        elif "btnWifiStatus" in request.form:
+            screen = wifi_status()
+
+        elif "btnWifiOn" in request.form:
+            screen = wifi_on()
+
+        elif "btnAdd" in request.form:
+            screen = connect_wifi(ssid, password)
+
+        elif "btnSwitch" in request.form:
+            screen = switch_wifi(ssid)
+
+        elif "btnDelete" in request.form:
+            screen = delete_wifi(ssid)
+
+        elif "btnHotspotStatus" in request.form:
+            screen = hotspot_status()
+
+        elif "btnStartHotspot" in request.form:
+            screen = start_hotspot()
+
+        elif "btnStopHotspot" in request.form:
+            screen = stop_hotspot()
+
+    return render_template(
+        "wifi.html",
+        screen=screen,
+        ssid=ssid,
+        password=password,
+    )
+## End Wifi
 @app.route("/edit/node-info", methods=["GET", "POST"])
 def node_info_edit_page():
     saved = request.args.get("saved") == "1"
