@@ -134,16 +134,22 @@ def render_all(model):
 # Deployment phase
 # =========================================================
 def render_motd_script(model):
-    callsign = model.get("node", {}).get("callsign") or "UNCONFIGURED"
+    callsign = (
+        model.get("node", {})
+        .get("callsign", "UNCONFIGURED")
+    )
 
     return f"""#!/bin/sh
 
-echo
-echo "NanoPi-Neo SvxLink - {callsign}"
-echo
+uname -snrvm
+TERM=linux toilet -F metal {callsign}-SVX
+/usr/bin/vcgencmd measure_temp
+
+## This file gives the login screen of a Raspberry Pi a new look
+## 30062024 - 1.2
 """
 def deploy_motd_script(content):
-    tmp_path = Path("/tmp/20-svxlink-dash")
+    tmp_path = Path("/tmp/10-uname")
 
     tmp_path.write_text(content, encoding="utf-8")
 
@@ -155,14 +161,14 @@ def deploy_motd_script(content):
             "-g", "root",
             "-m", "755",
             str(tmp_path),
-            "/etc/update-motd.d/20-svxlink-dash",
+            "/etc/update-motd.d/10-uname",
         ],
         check=True,
     )
 
     tmp_path.unlink(missing_ok=True)
 
-    return "/etc/update-motd.d/20-svxlink-dash"
+    return "/etc/update-motd.d/10-uname"
 def deploy_rendered_files(rendered_files):
     """
     Deploy rendered configuration files.
