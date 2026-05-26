@@ -296,7 +296,7 @@ def environment_page():
                 metar_region = "north_america"
 
             elif environment == "australia_nz":
-                language = "en_GB"
+                language = "en_AU"
                 metar_region = "australia"
 
             else:
