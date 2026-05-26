@@ -16,7 +16,10 @@ This is the authoritative build pipeline.
 
 from pathlib import Path
 import subprocess
+import json
 
+
+NODE_INFO_FILE = Path("/etc/svxlink/node_info.json")
 from models.node_model import validate_model
 
 from hw_platforms import (
@@ -169,6 +172,39 @@ def deploy_motd_script(content):
     tmp_path.unlink(missing_ok=True)
 
     return "/etc/update-motd.d/10-uname"
+
+def deploy_node_info(model):
+    node_info = {
+        "callsign": model.get("node", {}).get("callsign"),
+        "type": model.get("node", {}).get("type"),
+        "platform": model.get("platform", {}).get("name"),
+        "reflector": model.get("reflector", {}).get("name"),
+        "modules": model.get("modules", {}).get("enabled", []),
+    }
+
+    write_text_file(
+        NODE_INFO_FILE,
+        json.dumps(node_info, indent=4) + "\n",
+    )
+
+    return str(NODE_INFO_FILE)
+
+def deploy_node_info(model):
+    node_info = {
+        "callsign": model.get("node", {}).get("callsign"),
+        "type": model.get("node", {}).get("type"),
+        "platform": model.get("platform", {}).get("name"),
+        "reflector": model.get("reflector", {}).get("name"),
+        "modules": model.get("modules", {}).get("enabled", []),
+    }
+
+    write_text_file(
+        NODE_INFO_FILE,
+        json.dumps(node_info, indent=4) + "\n",
+    )
+
+    return str(NODE_INFO_FILE)
+
 def deploy_rendered_files(rendered_files):
     """
     Deploy rendered configuration files.
@@ -178,6 +214,8 @@ def deploy_rendered_files(rendered_files):
     """
 
     deployed = []
+
+
 
 # =====================================================
 # Main svxlink.conf
@@ -302,6 +340,9 @@ def build_svxlink_configuration(
         motd_script = render_motd_script(model)
         motd_path = deploy_motd_script(motd_script)
         result["rendered_files"].append(motd_path)
+        
+        node_info_path = deploy_node_info(model)
+        result["rendered_files"].append(node_info_path)
     except Exception as exc:
 
         result["deployment_errors"].append(
