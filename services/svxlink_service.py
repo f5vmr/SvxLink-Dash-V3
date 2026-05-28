@@ -342,11 +342,6 @@ def apply_repeater_event_customisations(model):
     idle_commented = """    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
     # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;"""
 
-    idle_pip = """    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
-    # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;
-    }
-    CW::play "E";"""
-
     if idle_tone == "chime":
         content = content.replace(idle_original, idle_chime, 1)
 
@@ -364,33 +359,38 @@ def apply_repeater_event_customisations(model):
             "# playTone 1100",
             1,
         )
+
         proc = proc.replace(
             "playTone 1200",
             "# playTone 1200",
             1,
         )
 
-    if 'CW::play "E";' not in proc:
-        last_brace = proc.rfind("}")
-        proc = proc[:last_brace] + '  CW::play "E";\n' + proc[last_brace:]
+        if 'CW::play "E";' not in proc:
+            last_brace = proc.rfind("}")
+            proc = (
+                proc[:last_brace]
+                + '  CW::play "E";\n'
+                + proc[last_brace:]
+            )
 
         content = content[:start] + proc + content[end:]
 
     elif idle_tone == "silence":
         content = content.replace(idle_original, idle_commented, 1)
 
-        down_original = """    playTone 400 900 50
-        playSilence 100
-        playTone 360 900 50
-        playSilence 500"""
+    down_original = """    playTone 400 900 50
+    playSilence 100
+    playTone 360 900 50
+    playSilence 500"""
 
-        down_commented = """    # playTone 400 900 50
-        # playSilence 100
-        # playTone 360 900 50
-        playSilence 500"""
+    down_commented = """    # playTone 400 900 50
+    # playSilence 100
+    # playTone 360 900 50
+    playSilence 500"""
 
-        down_va = """    CW::play "-"
-        playSilence 500"""
+    down_va = """    CW::play "-"
+    playSilence 500"""
 
     if down_tone == "none":
         content = content.replace(down_original, down_commented, 1)
