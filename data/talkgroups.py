@@ -3,7 +3,7 @@ TALKGROUPS = {
         {"id": "235", "label": "UK Wide", "colour": "tg-green", "command": "91235#"},
         {"id": "2350", "label": "UK Calling", "colour": "tg-blue", "command": "912350#"},
         {"id": "23450", "label": "YorkshireNet", "colour": "tg-green", "command": "9123450#"},
-        {"id": "23561", "label": "Hubnet", "colour": "tg-orange", "command": "9123561#"},
+        {"id": "23561", "label": "Local", "colour": "tg-green", "command": "9123561#"},
         {"id": "9990", "label": "Parrot", "colour": "tg-purple", "command": "919990#"},
     ],
 
