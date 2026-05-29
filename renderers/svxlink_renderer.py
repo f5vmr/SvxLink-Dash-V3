@@ -595,7 +595,7 @@ def render_active_logic(model):
         "FX_GAIN_LOW": model.get("fx_gain_low", -12),
 
         "ONLINE_CONTROL_BLOCK": render_online_control(model),
-
+        "DTMF_CTRL_PTY": get_dtmf_ctrl_pty(model),
         "IDLE_TIMEOUT": model.get("idle_timeout", 10),
         "OPEN_ON_CTCSS_LINE": render_open_on_ctcss_line(model),
         "REPEATER_SQL_TIMEOUT": model.get("sql_timeout", 180),
@@ -612,7 +612,16 @@ def render_active_logic(model):
         values
     )
 
+# =========================================================
+# DTMF Sender Renderer
+# =========================================================
+def get_dtmf_ctrl_pty(model):
+    node_type = model.get("node", {}).get("type")
 
+    if node_type == "repeater":
+        return "/dev/shm/repeater_dtmf_ctrl"
+
+    return "/dev/shm/simplex_dtmf_ctrl"
 # =========================================================
 # Reflector rendering
 # =========================================================
