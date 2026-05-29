@@ -1,7 +1,7 @@
 [RepeaterLogic]
 TYPE=Repeater
 RX=Rx1
-TX=MultiTx
+TX=Tx1
 MODULES={{MODULES}}
 CALLSIGN={{CALLSIGN}}
 
