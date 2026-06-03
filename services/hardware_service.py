@@ -74,12 +74,37 @@ def get_memory_usage():
     except Exception:
         return "unknown"
 
+def get_architecture_label():
+    try:
+        result = subprocess.run(
+            ["/usr/bin/dpkg", "--print-architecture"],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+
+        arch = result.stdout.strip()
+
+    except Exception:
+        arch = platform.machine()
+
+    if arch == "arm64":
+        return "64-bit ARM"
+
+    if arch == "armhf":
+        return "32-bit ARM"
+
+    if arch == "amd64":
+        return "64-bit x86"
+
+    return arch
 
 def get_system_info():
     return {
         "hostname": socket.gethostname(),
         "ip": get_ip_address(),
         "kernel": platform.release(),
+        "architecture": get_architecture_label(),
         "os": read_first_line("/etc/os-release").replace("PRETTY_NAME=", "").replace('"', ""),
         "cpu_temp": get_cpu_temp(),
         "disk": get_disk_usage(),
