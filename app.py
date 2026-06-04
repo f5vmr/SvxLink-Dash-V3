@@ -6,6 +6,7 @@ from unittest import result
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
+from services.hardware_profile_service import list_hardware_profiles
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
 from services.model_store import (

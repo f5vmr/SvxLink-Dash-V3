@@ -1,0 +1,6 @@
+{
+  "profile_id": "ics_2x",
+  "name": "ICS-CTRLS 2X",
+  "type": "port_based",
+  "ports": 2
+}
