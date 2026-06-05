@@ -300,14 +300,14 @@ def hardware_page():
         model["hardware_profile_id"] = hardware_profile_id
 
         save_node_model(model)
+
         return redirect(url_for("environment_page"))
 
     return render_template(
         "hardware.html",
         model=model,
-        profiles=profiles
-    )
-    
+        profiles=profiles,
+    )  
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()

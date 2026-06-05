@@ -1,0 +1,38 @@
+{% include "navbar.html" %}
+
+<div class="container">
+    <h1>Select Radio Hardware</h1>
+
+    <p>
+        Select the radio interface hardware attached to this platform.
+    </p>
+
+    <form action="/hardware" method="post">
+
+        {% for profile in profiles %}
+        <div class="card">
+            <label>
+                <input
+                    type="radio"
+                    name="hardware_profile_id"
+                    value="{{ profile.profile_id }}"
+                    required
+                    {% if model.hardware_profile_id == profile.profile_id %}checked{% endif %}
+                >
+
+                <strong>{{ profile.name }}</strong><br>
+                Type: {{ profile.type }}<br>
+                Ports: {{ profile.ports }}
+            </label>
+        </div>
+        {% endfor %}
+
+        <div class="button-row">
+            <a class="button-secondary" href="/platform">Back</a>
+            <button class="button-primary" type="submit">
+                Continue
+            </button>
+        </div>
+
+    </form>
+</div>
