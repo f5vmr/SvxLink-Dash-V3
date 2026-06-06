@@ -38,6 +38,7 @@ svxlink ALL=(root) NOPASSWD: \
     /usr/bin/systemctl is-active svxlink, \
     /usr/sbin/shutdown, \
     /usr/bin/systemctl, \
+    /usr/bin/nmcli, \
     /usr/bin/mkdir, \
     /usr/bin/chown, \
     /usr/bin/chmod, \
