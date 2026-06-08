@@ -1542,3 +1542,36 @@ footer a:hover {
     color: #000000;
     text-align: center;
 }
+/* Sound calibration page: keep runtime styling light */
+.dashboard-container .calibration-table,
+.dashboard-container .calibration-table th,
+.dashboard-container .calibration-table td {
+    background-image: none;
+}
+
+.dashboard-container .calibration-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    background: #f1f1f1;
+    color: #000000;
+}
+
+.dashboard-container .calibration-table th {
+    background: #0000ff;
+    color: #ffffff;
+    border: 1px solid #000000;
+    padding: 0.35rem;
+    font-weight: bold;
+}
+
+.dashboard-container .calibration-table td {
+    background: #fffff0;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 0.35rem;
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+    word-break: break-word;
+}
