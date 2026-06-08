@@ -1694,3 +1694,18 @@ footer a:hover {
     background: #ffffff;
     color: #000000;
 }
+.devcal-console {
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background: #101010;
+    color: #00ff66;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    overflow-x: auto;
+    max-height: 420px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    text-align: left;
+}

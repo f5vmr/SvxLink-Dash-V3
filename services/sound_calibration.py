@@ -2,6 +2,15 @@
 
 import subprocess
 from typing import Any, Dict, List
+from pathlib import Path
+import os
+import signal
+import subprocess
+from typing import Any, Dict, List
+
+
+DEVCAL_LOG = Path("/tmp/svxlink-devcal.log")
+DEVCAL_PID = Path("/tmp/svxlink-devcal.pid")
 
 
 SVXLINK_SERVICE = "svxlink.service"
@@ -91,3 +100,179 @@ def run_devcal(
         cmd.append("--wide")
 
     return run_cmd(cmd, timeout=180)
+
+def build_devcal_command(
+    config_file: str,
+    section: str,
+    mode: str,
+    modfqs: str,
+    caldev: str,
+    maxdev: str,
+    headroom: str,
+    audiodev: str = "",
+    flat: bool = False,
+    wide: bool = False,
+) -> List[str]:
+    config_file = (config_file or "/etc/svxlink/svxlink.conf").strip()
+    section = (section or "").strip()
+    mode = (mode or "").strip()
+
+    if not section:
+        raise ValueError("No SvxLink Tx/Rx section selected.")
+
+    cmd = [
+        "sudo",
+        "/usr/bin/devcal",
+        config_file,
+        section,
+    ]
+
+    if mode == "txcal":
+        cmd.append("--txcal")
+    elif mode == "rxcal":
+        cmd.append("--rxcal")
+    elif mode == "measure":
+        cmd.append("--measure")
+    else:
+        raise ValueError("Invalid devcal mode selected.")
+
+    if modfqs:
+        cmd.extend(["--modfqs", str(modfqs)])
+
+    if caldev:
+        cmd.extend(["--caldev", str(caldev)])
+
+    if maxdev:
+        cmd.extend(["--maxdev", str(maxdev)])
+
+    if headroom:
+        cmd.extend(["--headroom", str(headroom)])
+
+    if audiodev:
+        cmd.extend(["--audiodev", audiodev])
+
+    if flat:
+        cmd.append("--flat")
+
+    if wide:
+        cmd.append("--wide")
+
+    return cmd
+
+
+def devcal_is_running() -> bool:
+    if not DEVCAL_PID.exists():
+        return False
+
+    try:
+        pid = int(DEVCAL_PID.read_text().strip())
+        os.kill(pid, 0)
+        return True
+    except Exception:
+        return False
+
+
+def start_devcal_session(
+    config_file: str,
+    section: str,
+    mode: str,
+    modfqs: str,
+    caldev: str,
+    maxdev: str,
+    headroom: str,
+    audiodev: str = "",
+    flat: bool = False,
+    wide: bool = False,
+) -> Dict[str, Any]:
+    if devcal_is_running():
+        raise RuntimeError("devcal is already running.")
+
+    cmd = build_devcal_command(
+        config_file=config_file,
+        section=section,
+        mode=mode,
+        modfqs=modfqs,
+        caldev=caldev,
+        maxdev=maxdev,
+        headroom=headroom,
+        audiodev=audiodev,
+        flat=flat,
+        wide=wide,
+    )
+
+    DEVCAL_LOG.write_text(
+        "Starting devcal:\n"
+        + " ".join(cmd)
+        + "\n\n",
+        encoding="utf-8",
+    )
+
+    log_handle = DEVCAL_LOG.open("a", encoding="utf-8")
+
+    process = subprocess.Popen(
+        cmd,
+        stdout=log_handle,
+        stderr=subprocess.STDOUT,
+        text=True,
+        start_new_session=True,
+    )
+
+    DEVCAL_PID.write_text(str(process.pid), encoding="utf-8")
+
+    return {
+        "command": " ".join(cmd),
+        "returncode": 0,
+        "stdout": f"devcal started with PID {process.pid}",
+        "stderr": "",
+    }
+
+
+def stop_devcal_session() -> Dict[str, Any]:
+    if not DEVCAL_PID.exists():
+        return {
+            "command": "stop devcal",
+            "returncode": 0,
+            "stdout": "No devcal PID file found.",
+            "stderr": "",
+        }
+
+    try:
+        pid = int(DEVCAL_PID.read_text().strip())
+
+        try:
+            os.killpg(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+
+        DEVCAL_PID.unlink(missing_ok=True)
+
+        return {
+            "command": "stop devcal",
+            "returncode": 0,
+            "stdout": f"Stopped devcal PID {pid}",
+            "stderr": "",
+        }
+
+    except Exception as exc:
+        return {
+            "command": "stop devcal",
+            "returncode": 1,
+            "stdout": "",
+            "stderr": str(exc),
+        }
+
+
+def get_devcal_output(limit: int = 120) -> List[str]:
+    if not DEVCAL_LOG.exists():
+        return ["No devcal output yet."]
+
+    try:
+        lines = DEVCAL_LOG.read_text(
+            encoding="utf-8",
+            errors="ignore",
+        ).splitlines()
+
+    except Exception as exc:
+        return [f"Unable to read devcal output: {exc}"]
+
+    return lines[-limit:]

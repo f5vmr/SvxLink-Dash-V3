@@ -25,7 +25,10 @@ from services.sound_calibration import (
     get_svxlink_service_state,
     stop_svxlink_for_calibration,
     restart_svxlink_after_calibration,
-    run_devcal,
+    start_devcal_session,
+    stop_devcal_session,
+    get_devcal_output,
+    devcal_is_running,
 )
 
 ## Wifi
@@ -1341,7 +1344,7 @@ def sound_calibration_page():
 
             elif action == "restart_svxlink":
                 result = restart_svxlink_after_calibration()
-            elif action == "run_devcal":
+            elif action == "start_devcal":
                 config_file = request.form.get(
                     "config_file",
                     DEFAULT_SVXLINK_CONFIG
@@ -1357,7 +1360,7 @@ def sound_calibration_page():
                 flat = request.form.get("flat") == "on"
                 wide = request.form.get("wide") == "on"
 
-                result = run_devcal(
+                result = start_devcal_session(
                     config_file=config_file,
                     section=section,
                     mode=mode,
@@ -1369,6 +1372,40 @@ def sound_calibration_page():
                     flat=flat,
                     wide=wide,
                 )
+
+            elif action == "stop_devcal":
+                result = stop_devcal_session()
+            elif action == "start_devcal":
+                config_file = request.form.get(
+                    "config_file",
+                    DEFAULT_SVXLINK_CONFIG
+                ).strip()
+
+                section = request.form.get("section", "").strip()
+                mode = request.form.get("mode", "").strip()
+                modfqs = request.form.get("modfqs", "1000.0").strip()
+                caldev = request.form.get("caldev", "2404.8").strip()
+                maxdev = request.form.get("maxdev", "5000").strip()
+                headroom = request.form.get("headroom", "6").strip()
+                audiodev = request.form.get("audiodev", "").strip()
+                flat = request.form.get("flat") == "on"
+                wide = request.form.get("wide") == "on"
+
+                result = start_devcal_session(
+                    config_file=config_file,
+                    section=section,
+                    mode=mode,
+                    modfqs=modfqs,
+                    caldev=caldev,
+                    maxdev=maxdev,
+                    headroom=headroom,
+                    audiodev=audiodev,
+                    flat=flat,
+                    wide=wide,
+                )
+
+            elif action == "stop_devcal":
+                result = stop_devcal_session()
             else:
                 error = "Unknown calibration action."
 
@@ -1394,6 +1431,8 @@ def sound_calibration_page():
         svxlink_state=svxlink_state,
         error=error,
         result=result,
+        devcal_running=devcal_is_running(),
+        devcal_output=get_devcal_output(),
     )
    
        
