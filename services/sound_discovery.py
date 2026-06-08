@@ -320,6 +320,92 @@ def discover_sound_cards() -> List[Dict[str, Any]]:
         for card in cards
     ]
 
+def percent_to_raw(control: AlsaControl, percent: int) -> Optional[int]:
+    if control.min_value is None or control.max_value is None:
+        return None
+
+    percent = max(0, min(100, percent))
+    span = control.max_value - control.min_value
+    return round(control.min_value + (span * percent / 100))
+
+
+def cset_control(card_index: int, control: AlsaControl, value: str) -> Dict[str, Any]:
+    output = run_cmd([
+        "amixer",
+        "-c",
+        str(card_index),
+        "cset",
+        f"numid={control.numid}",
+        value,
+    ])
+
+    return {
+        "numid": control.numid,
+        "name": control.name,
+        "role": control.role,
+        "value": value,
+        "output": output,
+    }
+
+
+def apply_safe_baseline(card_index: int) -> Dict[str, Any]:
+    controls = parse_amixer_contents(card_index)
+    actions: List[Dict[str, Any]] = []
+    skipped: List[Dict[str, Any]] = []
+
+    for control in controls:
+        action = control.safe_action
+
+        if action == "force_off":
+            actions.append(cset_control(card_index, control, "off"))
+
+        elif action == "force_on":
+            actions.append(cset_control(card_index, control, "on"))
+
+        elif action == "force_min":
+            if control.min_value is not None:
+                actions.append(cset_control(card_index, control, str(control.min_value)))
+            else:
+                skipped.append({
+                    "numid": control.numid,
+                    "name": control.name,
+                    "reason": "no minimum value available",
+                })
+
+        elif action == "slider":
+            if control.role == "output_volume":
+                raw = percent_to_raw(control, 77)
+            elif control.role in ["mic_capture_volume", "capture_volume"]:
+                raw = percent_to_raw(control, 41)
+            else:
+                raw = None
+
+            if raw is not None:
+                value = ",".join([str(raw)] * (control.values_count or 1))
+                actions.append(cset_control(card_index, control, value))
+            else:
+                skipped.append({
+                    "numid": control.numid,
+                    "name": control.name,
+                    "reason": "slider role but no baseline value",
+                })
+
+        else:
+            skipped.append({
+                "numid": control.numid,
+                "name": control.name,
+                "role": control.role,
+                "reason": "no safe automatic action",
+            })
+
+    store_output = run_cmd(["alsactl", "store"])
+
+    return {
+        "card_index": card_index,
+        "actions": actions,
+        "skipped": skipped,
+        "alsactl_store": store_output,
+    }
 
 if __name__ == "__main__":
     import json
