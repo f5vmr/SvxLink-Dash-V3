@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="page">
+  <h1>Sound Levels</h1>
+
+  <section class="panel">
+    <p>
+      This page shows the ALSA sound cards and mixer controls detected on this device.
+      No mixer settings are changed from this page.
+    </p>
+  </section>
+
+  {% if not cards %}
+    <section class="panel warning">
+      <h2>No sound cards detected</h2>
+      <p>No ALSA sound cards were found in /proc/asound/cards.</p>
+    </section>
+  {% endif %}
+
+  {% for card in cards %}
+    <section class="panel">
+      <h2>Card {{ card.index }}: {{ card.name }}</h2>
+
+      <p>{{ card.description }}</p>
+
+      <table>
+        <tbody>
+          <tr>
+            <th>Playback</th>
+            <td>{{ "Yes" if card.has_playback else "No" }}</td>
+          </tr>
+          <tr>
+            <th>Capture</th>
+            <td>{{ "Yes" if card.has_capture else "No" }}</td>
+          </tr>
+          <tr>
+            <th>Likely role</th>
+            <td>{{ card.likely_role }}</td>
+          </tr>
+          <tr>
+            <th>Confidence</th>
+            <td>{{ card.confidence }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {% if card.controls %}
+        <h3>Detected mixer controls</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>NumID</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Current</th>
+              <th>Range</th>
+              <th>Role</th>
+              <th>Confidence</th>
+              <th>Safe action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for control in card.controls %}
+              <tr>
+                <td>{{ control.numid }}</td>
+                <td>{{ control.name }}</td>
+                <td>{{ control.control_type or "" }}</td>
+                <td>
+                  {% if control.current_values %}
+                    {{ control.current_values | join(", ") }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if control.min_value is not none and control.max_value is not none %}
+                    {{ control.min_value }}–{{ control.max_value }}
+                  {% endif %}
+                </td>
+                <td>{{ control.role }}</td>
+                <td>{{ control.confidence }}</td>
+                <td>{{ control.safe_action }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No mixer controls were detected for this card.</p>
+      {% endif %}
+    </section>
+  {% endfor %}
+</main>
+{% endblock %}

@@ -6,6 +6,7 @@ from unittest import result
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
+from services.sound_discovery import discover_sound_cards
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
 from services.model_store import (
@@ -1273,6 +1274,11 @@ def status_page():
         system_info=system_info,
         version_info=get_version_info(),
     )
+@app.route("/sound-levels", methods=["GET"])
+def sound_levels_page():
+    cards = discover_sound_cards()
+    return render_template("sound_levels.html", cards=cards)
+
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
     error = None
