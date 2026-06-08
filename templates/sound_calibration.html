@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Maintenance</title>
+    <title>Sound Calibration</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='site.css') }}">
@@ -26,12 +26,12 @@
                      src="{{ url_for('static', filename='svxlink.ico') }}"
                      alt="SvxLink icon">
 
-                System Maintenance
+                Sound Calibration
 
             </h1>
 
             <p>
-                Service and system control
+                devcal calibration target discovery
             </p>
 
         </div>
@@ -40,157 +40,144 @@
 
         <div class="maintenance-panel">
 
-                            <div class="status-box">
-                            
-                                <div class="status-box-title">
-                                    Calibration Mode Warning
-                                </div>
-                            
-                                <div class="status-box-row calibration-warning">
-                                    Running devcal requires SvxLink to be stopped. While calibration mode
-                                    is active, this repeater or node will be unavailable to users.
-                                </div>
-                            
-                            </div>
-                        
-                            <div class="status-box">
-                            
-                                <div class="status-box-title">
-                                    SvxLink Service Control
-                                </div>
-                            
-                                <div class="status-box-row">
-                                    Current state: <strong>{{ svxlink_state.stdout }}</strong>
-                                </div>
-                            
-                                <div class="status-box-row">
-                                
-                                    <form action="{{ url_for('sound_calibration_page') }}"
-                                          method="post"
-                                          style="display:inline-block; margin:0.25rem;">
-                                
-                                        <input type="hidden"
-                                               name="action"
-                                               value="stop_svxlink">
-                                
-                                        <button class="calibration-stop"
-                                                type="submit"
-                                                onclick="return confirm('This will stop SvxLink and temporarily take the repeater/node out of service. Continue?');">
-                                
-                                            Stop SvxLink for Calibration
-                                
-                                        </button>
-                                    
-                                    </form>
-                                
-                                    <form action="{{ url_for('sound_calibration_page') }}"
-                                          method="post"
-                                          style="display:inline-block; margin:0.25rem;">
-                                
-                                        <input type="hidden"
-                                               name="action"
-                                               value="restart_svxlink">
-                                
-                                        <button class="calibration-start"
-                                                type="submit">
-                                
-                                            Restart SvxLink
-                                
-                                        </button>
-                                    
-                                    </form>
-                                
-                                </div>
-                            
-                            </div>
-                        
-                            <div class="status-box">
-                            
-                                <div class="status-box-title">
-                                    devcal Controls
-                                </div>
-                            
-                                <div class="status-box-row">
-                                
-                                    <form class="calibration-slider-form"
-                                          action="{{ url_for('sound_calibration_page') }}"
-                                          method="post">
-                                
-                                        <input type="hidden"
-                                               name="action"
-                                               value="run_devcal">
-                                
-                                        <label for="amplitude">Amplitude</label>
-                                        <input id="amplitude"
-                                               type="range"
-                                               name="amplitude"
-                                               min="0"
-                                               max="100"
-                                               value="50"
-                                               oninput="document.getElementById('amplitude-value').textContent = this.value">
-                                        <output id="amplitude-value">50</output>
-                                
-                                        <span></span>
-                                
-                                        <label for="frequency">Tone Hz</label>
-                                        <input id="frequency"
-                                               type="range"
-                                               name="frequency"
-                                               min="300"
-                                               max="3000"
-                                               step="10"
-                                               value="1000"
-                                               oninput="document.getElementById('frequency-value').textContent = this.value">
-                                        <output id="frequency-value">1000</output>
-                                
-                                        <span></span>
-                                
-                                        <label for="duration">Duration</label>
-                                        <input id="duration"
-                                               type="range"
-                                               name="duration"
-                                               min="1"
-                                               max="60"
-                                               value="10"
-                                               oninput="document.getElementById('duration-value').textContent = this.value">
-                                        <output id="duration-value">10</output>
-                                
-                                        <button class="calibration-start"
-                                                type="submit"
-                                                onclick="return confirm('Run devcal with these settings? SvxLink should already be stopped.');">
-                                
-                                            Run devcal
-                                
-                                        </button>
-                                    
-                                    </form>
-                                
-                                </div>
-                            
-                            </div>
-                        
-                            {% if result %}
-                                <div class="status-box">
-                                
-                                    <div class="status-box-title">
-                                        Command Result
-                                    </div>
-                                
-                                    <div class="status-box-row calibration-output">
-                        Command: {{ result.command }}
-                        Return code: {{ result.returncode }}
-                                    
-                        STDOUT:
-                        {{ result.stdout }}
-                                    
-                        STDERR:
-                        {{ result.stderr }}
-                                    </div>
-                                
-                                </div>
-                            {% endif %}
-                            
-                        </div>
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Calibration Mode Warning
+                </div>
+
+                <div class="status-box-row calibration-warning">
+                    Running devcal requires SvxLink to be stopped. While calibration
+                    mode is active, this repeater or node will be unavailable to users.
+                </div>
+
+            </div>
+
+            {% if error %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Error
+                    </div>
+
+                    <div class="status-box-row status-bad">
+                        {{ error }}
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Config File
+                </div>
+
+                <div class="status-box-row">
+                    {{ audio_sections.config_file }}
+                </div>
+
+            </div>
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Transmitter Calibration Targets
+                </div>
+
+                {% if audio_sections.tx_sections %}
+
+                    <div class="status-box-row">
+
+                        <table class="calibration-table">
+                            <thead>
+                                <tr>
+                                    <th>Section</th>
+                                    <th>Type</th>
+                                    <th>Audio Device</th>
+                                    <th>Channel</th>
+                                    <th>Sample Rate</th>
+                                    <th>PTT</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for tx in audio_sections.tx_sections %}
+                                    <tr>
+                                        <td>{{ tx.section }}</td>
+                                        <td>{{ tx.TYPE }}</td>
+                                        <td>{{ tx.AUDIO_DEV }}</td>
+                                        <td>{{ tx.AUDIO_CHANNEL }}</td>
+                                        <td>{{ tx.CARD_SAMPLE_RATE }}</td>
+                                        <td>{{ tx.PTT_TYPE }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="status-box-row">
+                        No Tx sections were found.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Receiver Calibration Targets
+                </div>
+
+                {% if audio_sections.rx_sections %}
+
+                    <div class="status-box-row">
+
+                        <table class="calibration-table">
+                            <thead>
+                                <tr>
+                                    <th>Section</th>
+                                    <th>Type</th>
+                                    <th>Audio Device</th>
+                                    <th>Channel</th>
+                                    <th>Sample Rate</th>
+                                    <th>Squelch</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for rx in audio_sections.rx_sections %}
+                                    <tr>
+                                        <td>{{ rx.section }}</td>
+                                        <td>{{ rx.TYPE }}</td>
+                                        <td>{{ rx.AUDIO_DEV }}</td>
+                                        <td>{{ rx.AUDIO_CHANNEL }}</td>
+                                        <td>{{ rx.CARD_SAMPLE_RATE }}</td>
+                                        <td>{{ rx.SQL_DET }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="status-box-row">
+                        No Rx sections were found.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
 
         <footer class="site-footer">
             SvxLink Software &copy; Tobias Blömberg SM0SVX<br>

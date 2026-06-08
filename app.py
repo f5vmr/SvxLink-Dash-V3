@@ -17,6 +17,10 @@ from services.model_store import (
     load_node_model,
     save_node_model,
 )
+from services.svxlink_config_discovery import (
+    DEFAULT_SVXLINK_CONFIG,
+    discover_audio_sections,
+)
 ## Wifi
 from services.wifi_service import (
     wifi_scan,
@@ -1317,44 +1321,27 @@ def sound_levels_page():
     )
 @app.route("/sound-calibration", methods=["GET", "POST"])
 def sound_calibration_page():
-    result = None
     error = None
+    result = None
+    config_file = DEFAULT_SVXLINK_CONFIG
 
-    if request.method == "POST":
-        action = request.form.get("action", "").strip()
-
-        try:
-            if action == "stop_svxlink":
-                result = stop_svxlink_for_calibration()
-
-            elif action == "restart_svxlink":
-                result = restart_svxlink_after_calibration()
-
-            elif action == "run_devcal":
-                amplitude = request.form.get("amplitude", "").strip()
-                frequency = request.form.get("frequency", "").strip()
-                duration = request.form.get("duration", "").strip()
-
-                result = run_devcal_test(
-                    amplitude=amplitude,
-                    frequency=frequency,
-                    duration=duration,
-                )
-
-            else:
-                error = "Unknown calibration action."
-
-        except Exception as exc:
-            error = f"Calibration action failed: {exc}"
-
-    svxlink_state = get_svxlink_service_state()
+    try:
+        audio_sections = discover_audio_sections(config_file)
+    except Exception as exc:
+        audio_sections = {
+            "config_file": config_file,
+            "rx_sections": [],
+            "tx_sections": [],
+        }
+        error = f"Could not read SvxLink audio sections: {exc}"
 
     return render_template(
         "sound_calibration.html",
-        result=result,
+        audio_sections=audio_sections,
         error=error,
-        svxlink_state=svxlink_state,
+        result=result,
     )
+    
        
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
