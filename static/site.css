@@ -1160,6 +1160,13 @@ footer a:hover {
     color: #444444;
     border-top: 1px solid #cccccc;
 }
+/* Runtime dashboard footer override */
+.dashboard-container .site-footer {
+    background: #f1f1f1;
+    box-shadow: none;
+    color: #444444;
+    border-top: 1px solid #cccccc;
+}
 .dashboard-menu {
     margin: 0.75rem 0 1rem 0;
     padding: 0.5rem;
@@ -1370,44 +1377,31 @@ footer a:hover {
 .maintenance-shutdown:hover {
     background: #b71c1c;
 }
-.sound-table-row {
-    display: block;
+/* Sound levels table */
+.sound-table {
     width: 100%;
-    box-sizing: border-box;
+    border-collapse: collapse;
+    background: #f1f1f1;
+    color: #000000;
+    white-space: nowrap;
+}
+
+.sound-table th {
+    background: #0000ff;
+    color: #ffffff;
+    border: 1px solid #c0c0c0;
+    padding: 0.35rem;
+}
+
+.sound-table td {
+    background: #fffff0;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 0.35rem;
+    text-align: center;
 }
 
 .sound-table-wrap {
     width: 100%;
-    max-width: 100%;
     overflow-x: auto;
-    overflow-y: visible;
-    box-sizing: border-box;
-    background: inherit;
-}
-
-.sound-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.sound-table th,
-.sound-table td {
-    padding: 0.35rem 0.5rem;
-    text-align: left;
-    vertical-align: top;
-    white-space: nowrap;
-}
-
-.sound-table-wrap::after {
-    content: "";
-    display: block;
-    clear: both;
-}
-.status-box {
-    overflow: hidden;
-    box-sizing: border-box;
-}
-
-.site-footer {
-    clear: both;
 }
