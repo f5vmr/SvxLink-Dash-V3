@@ -1332,10 +1332,28 @@ def sound_calibration_page():
     error = None
     result = None
     config_file = DEFAULT_SVXLINK_CONFIG
-
+    devcal_values = {
+        "mode": "txcal",
+        "section": "",
+        "modfqs": "1000",
+        "caldev": "2405",
+        "maxdev": "5000",
+        "headroom": "6",
+        "audiodev": "",
+        "flat": False,
+        "wide": False,
+    }
     if request.method == "POST":
         action = request.form.get("action", "").strip()
-
+        devcal_values["mode"] = request.form.get("mode", devcal_values["mode"]).strip()
+        devcal_values["section"] = request.form.get("section", devcal_values["section"]).strip()
+        devcal_values["modfqs"] = request.form.get("modfqs", devcal_values["modfqs"]).strip()
+        devcal_values["caldev"] = request.form.get("caldev", devcal_values["caldev"]).strip()
+        devcal_values["maxdev"] = request.form.get("maxdev", devcal_values["maxdev"]).strip()
+        devcal_values["headroom"] = request.form.get("headroom", devcal_values["headroom"]).strip()
+        devcal_values["audiodev"] = request.form.get("audiodev", devcal_values["audiodev"]).strip()
+        devcal_values["flat"] = request.form.get("flat") == "on"
+        devcal_values["wide"] = request.form.get("wide") == "on"
         try:
             if action == "stop_svxlink":
                 result = stop_svxlink_for_calibration()
@@ -1361,15 +1379,15 @@ def sound_calibration_page():
 
                 result = start_devcal_session(
                     config_file=config_file,
-                    section=section,
-                    mode=mode,
-                    modfqs=modfqs,
-                    caldev=caldev,
-                    maxdev=maxdev,
-                    headroom=headroom,
-                    audiodev=audiodev,
-                    flat=flat,
-                    wide=wide,
+                    section=devcal_values["section"],
+                    mode=devcal_values["mode"],
+                    modfqs=devcal_values["modfqs"],
+                    caldev=devcal_values["caldev"],
+                    maxdev=devcal_values["maxdev"],
+                    headroom=devcal_values["headroom"],
+                    audiodev=devcal_values["audiodev"],
+                    flat=devcal_values["flat"],
+                    wide=devcal_values["wide"],
                 )
 
             elif action == "toggle_devcal_tx":
@@ -1408,6 +1426,7 @@ def sound_calibration_page():
         devcal_mode=get_devcal_mode(),
         devcal_tx_state=get_devcal_tx_state(),
         devcal_output=get_devcal_output(),
+        devcal_values=devcal_values,
     )
 
 

@@ -286,9 +286,9 @@
                                    min="300"
                                    max="3000"
                                    step="10"
-                                   value="1000"
+                                   value="{{ devcal_values.modfqs }}"
                                    oninput="document.getElementById('modfqs-value').textContent = this.value">
-                            <output id="modfqs-value">1000</output>
+                            <output id="modfqs-value">{{ devcal_values.modfqs }}</output>
                         </div>
 
                         <label for="caldev">Calibration deviation Hz</label>
@@ -299,9 +299,9 @@
                                    min="500"
                                    max="5000"
                                    step="10"
-                                   value="2405"
+                                   value="{{ devcal_values.caldev }}"
                                    oninput="document.getElementById('caldev-value').textContent = this.value">
-                            <output id="caldev-value">2405</output>
+                            <output id="caldev-value">{{ devcal_values.caldev }}</output>
                         </div>
 
                         <label for="maxdev">Maximum deviation Hz</label>
@@ -312,9 +312,9 @@
                                    min="2500"
                                    max="7500"
                                    step="100"
-                                   value="5000"
+                                   value="{{ devcal_values.maxdev }}"
                                    oninput="document.getElementById('maxdev-value').textContent = this.value">
-                            <output id="maxdev-value">5000</output>
+                            <output id="maxdev-value">{{ devcal_values.maxdev }}</output>
                         </div>
 
                         <label for="headroom">Headroom dB</label>
@@ -325,9 +325,9 @@
                                    min="0"
                                    max="20"
                                    step="1"
-                                   value="6"
+                                   value="{{ devcal_values.headroom }}"
                                    oninput="document.getElementById('headroom-value').textContent = this.value">
-                            <output id="headroom-value">6</output>
+                            <output id="headroom-value">{{ devcal_values.headroom }}</output>
                         </div>
 
                         <label for="audiodev">Audio device override</label>
@@ -335,18 +335,19 @@
                                type="text"
                                name="audiodev"
                                class="input-field"
+                               value="{{ devcal_values.audiodev }}"
                                placeholder="Leave blank to use section config">
 
                         <div></div>
 
                         <div class="devcal-checkbox-row">
                             <label>
-                                <input type="checkbox" name="flat">
+                                <input type="checkbox" name="flat" {% if devcal_values.flat %}checked{% endif %}>
                                 Flat response
                             </label>
 
                             <label>
-                                <input type="checkbox" name="wide">
+                                <input type="checkbox" name="wide" {% if devcal_values.wide %}checked{% endif %}>
                                 Wideband
                             </label>
                         </div>
