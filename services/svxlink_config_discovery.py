@@ -2,11 +2,11 @@
 
 import configparser
 import os
+import re
 from typing import Any, Dict, List
 
 
 DEFAULT_SVXLINK_CONFIG = "/etc/svxlink/svxlink.conf"
-
 
 def read_svxlink_config(config_file: str = DEFAULT_SVXLINK_CONFIG) -> configparser.ConfigParser:
     parser = configparser.ConfigParser(
@@ -32,11 +32,23 @@ def section_to_dict(parser: configparser.ConfigParser, section: str) -> Dict[str
 
 
 def is_rx_section(section: str) -> bool:
-    return section.lower().startswith("rx")
+    """
+    Return True only for real numbered receiver sections:
+    Rx1, Rx2, Rx3, etc.
+
+    This deliberately excludes things that merely start with Rx.
+    """
+    return re.fullmatch(r"Rx\d+", section.strip(), re.IGNORECASE) is not None
 
 
 def is_tx_section(section: str) -> bool:
-    return section.lower().startswith("tx")
+    """
+    Return True only for real numbered transmitter sections:
+    Tx1, Tx2, Tx3, etc.
+
+    This deliberately excludes TxStream, TxUDP, MultiTx, etc.
+    """
+    return re.fullmatch(r"Tx\d+", section.strip(), re.IGNORECASE) is not None
 
 
 def discover_audio_sections(config_file: str = DEFAULT_SVXLINK_CONFIG) -> Dict[str, Any]:
