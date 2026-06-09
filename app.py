@@ -264,7 +264,7 @@ def ensure_dirs():
 
 def svxlink_status():
     result = subprocess.run(
-        ["systemctl", "is-active", "svxlink"],
+        ["systemctl", "is-active", "svxlink.service"],
         text=True,
         capture_output=True
     )
