@@ -140,33 +140,36 @@ def build_devcal_command(
     cmd = [
         "sudo",
         "/usr/bin/devcal",
-        config_file,
-        section,
     ]
 
     if mode == "txcal":
-        cmd.append("--txcal")
+        # TX calibration uses devcal's default interactive mode.
+        # Do not add --txcal here.
+        pass
+
     elif mode == "rxcal":
         cmd.append("--rxcal")
+
     elif mode == "measure":
         cmd.append("--measure")
+
     else:
         raise ValueError("Invalid devcal mode selected.")
 
     if modfqs:
-        cmd.extend(["--modfqs", str(modfqs)])
+        cmd.append(f"--modfqs={modfqs}")
 
     if caldev:
-        cmd.extend(["--caldev", str(caldev)])
+        cmd.append(f"--caldev={caldev}")
 
     if maxdev:
-        cmd.extend(["--maxdev", str(maxdev)])
+        cmd.append(f"--maxdev={maxdev}")
 
     if headroom:
-        cmd.extend(["--headroom", str(headroom)])
+        cmd.append(f"--headroom={headroom}")
 
     if audiodev:
-        cmd.extend(["--audiodev", audiodev])
+        cmd.append(f"--audiodev={audiodev}")
 
     if flat:
         cmd.append("--flat")
@@ -174,8 +177,12 @@ def build_devcal_command(
     if wide:
         cmd.append("--wide")
 
-    return cmd
+    cmd.extend([
+        config_file,
+        section,
+    ])
 
+    return cmd
 
 def devcal_is_running() -> bool:
     if not DEVCAL_PID.exists():
