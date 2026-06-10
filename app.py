@@ -1,15 +1,31 @@
 #!/usr/bin/env python3
 
-from pyexpat import model
-from unittest import result
-
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
-from services.hardware_profile_service import list_hardware_profiles
+from services.sound_calibration import (
+    discover_sound_cards,
+    apply_safe_baseline,
+    set_slider_control,
+)
+from services.svxlink_config_discovery import (
+    DEFAULT_SVXLINK_CONFIG,
+    discover_audio_sections,
+)
+from services.sound_calibration import (
+    get_svxlink_service_state,
+    stop_svxlink_for_calibration,
+    restart_svxlink_after_calibration,
+    start_devcal_session,
+    stop_devcal_session,
+    get_devcal_output,
+    devcal_is_running,
+    get_devcal_mode,
+    get_devcal_tx_state,
+    toggle_devcal_tx,
+)
 from services.hardware_profile_service import list_hardware_profiles, load_hardware_profile
 from services.build_svxlink import build_svxlink_configuration
-from services.build_svxlink import svxlink_status
 from services.model_store import (
     load_node_model,
     save_node_model,
@@ -1312,6 +1328,147 @@ def status_page():
         system_info=system_info,
         version_info=get_version_info(),
     )
+
+@app.route("/sound-levels", methods=["GET", "POST"])
+def sound_levels_page():
+    result = None
+    error = None
+
+    if request.method == "POST":
+        action = request.form.get("action", "").strip()
+
+        try:
+            if action == "baseline":
+                card_index = int(request.form.get("card_index", "").strip())
+                result = apply_safe_baseline(card_index)
+
+            elif action == "set_slider":
+                card_index = int(request.form.get("card_index", "").strip())
+                numid = int(request.form.get("numid", "").strip())
+                raw_value = int(request.form.get("raw_value", "").strip())
+
+                result = set_slider_control(card_index, numid, raw_value)
+
+            else:
+                error = "Unknown sound-level action."
+
+        except ValueError as exc:
+            error = str(exc)
+
+        except Exception as exc:
+            error = f"Failed to update sound levels: {exc}"
+
+    cards = discover_sound_cards()
+
+    return render_template(
+        "sound_levels.html",
+        cards=cards,
+        result=result,
+        error=error,
+    )
+
+@app.route("/sound-calibration", methods=["GET", "POST"])
+def sound_calibration_page():
+    error = None
+    result = None
+    config_file = DEFAULT_SVXLINK_CONFIG
+    devcal_values = {
+        "mode": "txcal",
+        "section": "",
+        "modfqs": "1000",
+        "caldev": "2405",
+        "maxdev": "5000",
+        "headroom": "6",
+        "audiodev": "",
+        "flat": False,
+        "wide": False,
+    }
+    if request.method == "POST":
+        action = request.form.get("action", "").strip()
+        devcal_values["mode"] = request.form.get("mode", devcal_values["mode"]).strip()
+        devcal_values["section"] = request.form.get("section", devcal_values["section"]).strip()
+        devcal_values["modfqs"] = request.form.get("modfqs", devcal_values["modfqs"]).strip()
+        devcal_values["caldev"] = request.form.get("caldev", devcal_values["caldev"]).strip()
+        devcal_values["maxdev"] = request.form.get("maxdev", devcal_values["maxdev"]).strip()
+        devcal_values["headroom"] = request.form.get("headroom", devcal_values["headroom"]).strip()
+        devcal_values["audiodev"] = request.form.get("audiodev", devcal_values["audiodev"]).strip()
+        devcal_values["flat"] = request.form.get("flat") == "on"
+        devcal_values["wide"] = request.form.get("wide") == "on"
+        try:
+            if action == "stop_svxlink":
+                result = stop_svxlink_for_calibration()
+
+            elif action == "restart_svxlink":
+                result = restart_svxlink_after_calibration()
+
+            elif action == "start_devcal":
+                config_file = request.form.get(
+                    "config_file",
+                    DEFAULT_SVXLINK_CONFIG
+                ).strip()
+
+                section = request.form.get("section", "").strip()
+                mode = request.form.get("mode", "").strip()
+                modfqs = request.form.get("modfqs", "1000.0").strip()
+                caldev = request.form.get("caldev", "2404.8").strip()
+                maxdev = request.form.get("maxdev", "5000").strip()
+                headroom = request.form.get("headroom", "6").strip()
+                audiodev = request.form.get("audiodev", "").strip()
+                flat = request.form.get("flat") == "on"
+                wide = request.form.get("wide") == "on"
+
+                result = start_devcal_session(
+                    config_file=config_file,
+                    section=devcal_values["section"],
+                    mode=devcal_values["mode"],
+                    modfqs=devcal_values["modfqs"],
+                    caldev=devcal_values["caldev"],
+                    maxdev=devcal_values["maxdev"],
+                    headroom=devcal_values["headroom"],
+                    audiodev=devcal_values["audiodev"],
+                    flat=devcal_values["flat"],
+                    wide=devcal_values["wide"],
+                )
+
+            elif action == "toggle_devcal_tx":
+                result = toggle_devcal_tx()
+
+            elif action == "stop_devcal":
+                result = stop_devcal_session()
+
+            else:
+                error = "Unknown calibration action."
+
+        except Exception as exc:
+            error = f"Calibration service action failed: {exc}"
+
+    try:
+        audio_sections = discover_audio_sections(config_file)
+    except Exception as exc:
+        audio_sections = {
+            "config_file": config_file,
+            "rx_sections": [],
+            "tx_sections": [],
+        }
+
+        if not error:
+            error = f"Could not read SvxLink audio sections: {exc}"
+
+    svxlink_state = get_svxlink_service_state()
+
+    return render_template(
+        "sound_calibration.html",
+        audio_sections=audio_sections,
+        svxlink_state=svxlink_state,
+        error=error,
+        result=result,
+        devcal_running=devcal_is_running(),
+        devcal_mode=get_devcal_mode(),
+        devcal_tx_state=get_devcal_tx_state(),
+        devcal_output=get_devcal_output(),
+        devcal_values=devcal_values,
+    )
+
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
     error = None
