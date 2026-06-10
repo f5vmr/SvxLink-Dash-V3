@@ -30,6 +30,23 @@ from services.model_store import (
     load_node_model,
     save_node_model,
 )
+from services.svxlink_config_discovery import (
+    DEFAULT_SVXLINK_CONFIG,
+    discover_audio_sections,
+)
+from services.sound_calibration import (
+    get_svxlink_service_state,
+    stop_svxlink_for_calibration,
+    restart_svxlink_after_calibration,
+    start_devcal_session,
+    stop_devcal_session,
+    get_devcal_output,
+    devcal_is_running,
+    get_devcal_mode,
+    get_devcal_tx_state,
+    toggle_devcal_tx,
+)
+
 ## Wifi
 from services.wifi_service import (
     wifi_scan,
@@ -49,7 +66,6 @@ from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
-from services.svxlink_service import restart_svxlink
 from services.log_service import get_svxlink_log_path
 from services.gpio_service import flatten_gpio_lines
 from services.node_info_service import write_node_info_json
@@ -274,7 +290,7 @@ def ensure_dirs():
 
 def svxlink_status():
     result = subprocess.run(
-        ["systemctl", "is-active", "svxlink"],
+        ["systemctl", "is-active", "svxlink.service"],
         text=True,
         capture_output=True
     )

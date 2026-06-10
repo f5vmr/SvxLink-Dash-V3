@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sound Levels</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="card dashboard-container">
+
+        <div class="dashboard-header">
+
+            <h1 class="status-title">
+
+                <img class="status-title-icon"
+                     src="{{ url_for('static', filename='svxlink.ico') }}"
+                     alt="SvxLink icon">
+
+                Sound Levels
+
+            </h1>
+
+            <p>
+                ALSA sound card and mixer control discovery
+            </p>
+
+        </div>
+
+        {% include "navbar.html" %}
+
+        <div class="maintenance-panel">
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Sound Discovery
+                </div>
+                            {% if error %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Error
+                    </div>
+
+                    <div class="status-box-row status-bad">
+                        {{ error }}
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+            {% if result %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Baseline Applied to Card {{ result.card_index }}
+                    </div>
+
+                    <div class="status-box-row status-good">
+                        Changed {{ result.actions | length }} controls.
+                        Skipped {{ result.skipped | length }} controls.
+                    </div>
+
+                </div>
+
+            {% endif %}
+                <div class="status-box-row">
+                    This page shows the ALSA sound cards and mixer controls detected
+                    on this device. No mixer settings are changed from this page.
+                </div>
+
+            </div>
+
+            {% if not cards %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        No Sound Cards Detected
+                    </div>
+
+                    <div class="status-box-row">
+                        No ALSA sound cards were found.
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+            {% for card in cards %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Card {{ card.index }}: {{ card.name }}
+                    </div>
+
+                    <div class="status-box-row">
+                        {{ card.description }}
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Playback:</strong>
+                        {{ "Yes" if card.has_playback else "No" }}
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Capture:</strong>
+                        {{ "Yes" if card.has_capture else "No" }}
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Likely role:</strong>
+                        {{ card.likely_role }}
+                    </div>
+
+                                        <div class="status-box-row">
+                        <strong>Confidence:</strong>
+                        {{ card.confidence }}
+                    </div>
+
+                    {% if card.confidence in ["high", "medium"] and card.has_playback and card.has_capture %}
+
+                        <div class="status-box-row">
+
+                            <form action="{{ url_for('sound_levels_page') }}"
+                                  method="post">
+                                <input type="hidden"
+                                       name="action"
+                                       value="baseline">
+                                <input type="hidden"
+                                       name="card_index"
+                                       value="{{ card.index }}">
+
+                                <button class="maintenance-restart"
+                                        type="submit">
+
+                                    Apply Safe Baseline to Card {{ card.index }}
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                </div>
+
+                {% if card.controls %}
+
+                    <div class="status-box">
+
+                        <div class="status-box-title">
+                            Mixer Controls for Card {{ card.index }}
+                        </div>
+
+                            <div class="status-box-row sound-table-row">
+
+                                <div class="sound-table-wrap">
+
+                                    <table class="sound-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Control</th>
+                                            <th>Current</th>
+                                            <th>Range</th>
+                                            <th>Role</th>
+                                            <th>Adjust</th>
+                                        </tr>
+                                    </thead>
+
+                                        <tbody>
+                                            {% for control in card.controls %}
+                                                <tr>
+                                                    <td class="sound-control-name">
+                                                        {{ control.name }}
+                                                                                                        
+                                                        <div class="sound-control-meta">
+                                                            NumID {{ control.numid }}
+                                                            {% if control.control_type %}
+                                                                · {{ control.control_type }}
+                                                            {% endif %}
+                                                            · {{ control.confidence }}
+                                                        </div>
+                                                    </td>
+                                                    
+                                                    <td>
+                                                        {% if control.current_values %}
+                                                            {{ control.current_values | join(", ") }}
+                                                        {% endif %}
+                                                    </td>
+                                                    
+                                                    <td>
+                                                        {% if control.min_value != None and control.max_value != None %}
+                                                            {{ control.min_value }}-{{ control.max_value }}
+                                                        {% endif %}
+                                                    </td>
+                                                    
+                                                    <td class="sound-control-role">
+                                                        {{ control.role }}
+                                                    </td>
+                                                    
+                                                    <td class="sound-control-adjust">
+                                                        {% if control.safe_action == "slider"
+                                                              and control.min_value != None
+                                                              and control.max_value != None
+                                                              and control.current_values %}
+                                                    
+                                                            <form class="sound-slider-form"
+                                                                  action="{{ url_for('sound_levels_page') }}"
+                                                                  method="post">
+                                                    
+                                                                <input type="hidden"
+                                                                       name="action"
+                                                                       value="set_slider">
+                                                    
+                                                                <input type="hidden"
+                                                                       name="card_index"
+                                                                       value="{{ card.index }}">
+                                                    
+                                                                <input type="hidden"
+                                                                       name="numid"
+                                                                       value="{{ control.numid }}">
+                                                    
+                                                                <input class="sound-slider"
+                                                                       type="range"
+                                                                       name="raw_value"
+                                                                       min="{{ control.min_value }}"
+                                                                       max="{{ control.max_value }}"
+                                                                       value="{{ control.current_values[0] }}"
+                                                                       oninput="document.getElementById('slider-value-{{ card.index }}-{{ control.numid }}').textContent = this.value">
+                                                    
+                                                                <output id="slider-value-{{ card.index }}-{{ control.numid }}">
+                                                                    {{ control.current_values[0] }}
+                                                                </output>
+                                                            
+                                                                <button class="sound-apply-button"
+                                                                        type="submit"
+                                                                        onclick="return confirm('Apply this mixer level now?');">
+                                                            
+                                                                    Apply
+                                                            
+                                                                </button>
+                                                            
+                                                            </form>
+                                                        
+                                                        {% else %}
+                                                        
+                                                            <span class="sound-readonly-action">
+                                                                {{ control.safe_action }}
+                                                            </span>
+                                                        
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                    </div>
+                {% else %}
+
+                    <div class="status-box">
+
+                        <div class="status-box-title">
+                            Mixer Controls for Card {{ card.index }}
+                        </div>
+
+                        <div class="status-box-row">
+                            No mixer controls were detected for this card.
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+        <footer class="site-footer">
+            SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+            SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+            Dashboard {{ version_info.dashboard }} |
+            SvxLink Package {{ version_info.package }} |
+            SvxLink {{ version_info.engine }}
+        </footer>
+
+    </section>
+
+</main>
+
+</body>
+</html>

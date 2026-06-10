@@ -55,7 +55,7 @@ def svxlink_status():
     """
 
     result = subprocess.run(
-        ["systemctl", "is-active", "svxlink"],
+        ["systemctl", "is-active", "svxlink.service"],
         text=True,
         capture_output=True,
     )
@@ -76,7 +76,7 @@ def restart_svxlink():
     """
 
     subprocess.run(
-        ["sudo", "systemctl", "restart", "svxlink"],
+        ["sudo", "systemctl", "restart", "svxlink.service"],
         check=True,
     )
 

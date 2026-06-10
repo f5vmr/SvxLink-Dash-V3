@@ -49,17 +49,19 @@ def get_system_uptime():
 
 def get_connected_reflector(model=None):
     """
-    Determine reflector connection state.
+    Determine reflector connection state from recent SvxLink log lines.
+
+    The latest relevant ReflectorLogic event wins.
     """
 
     log_file = get_svxlink_log_path()
 
-    reflector_name = "Unknown"
+    reflector_name = "Connected"
 
     if model:
         reflector_name = (
             model.get("reflector", {})
-            .get("name", "Unknown")
+            .get("name", "Connected")
         )
 
     if not log_file.exists():
@@ -74,20 +76,32 @@ def get_connected_reflector(model=None):
     except Exception:
         return "unknown"
 
-    for line in reversed(lines[-500:]):
+    connected_terms = (
+        "authentication ok",
+        "connected to",
+        "connection established",
+        "reflector connected",
+    )
+
+    disconnected_terms = (
+        "disconnected",
+        "connection failed",
+        "connection lost",
+        "server closed connection",
+        "authentication failed",
+    )
+
+    for line in reversed(lines[-800:]):
 
         lower = line.lower()
 
         if "reflectorlogic" not in lower:
             continue
 
-        if (
-            "disconnected" in lower
-            or "connection failed" in lower
-        ):
+        if any(term in lower for term in disconnected_terms):
             return "not connected"
 
-        if "authentication ok" in lower:
+        if any(term in lower for term in connected_terms):
             return reflector_name
 
     return "not connected"

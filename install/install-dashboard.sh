@@ -34,22 +34,25 @@ cat > /etc/sudoers.d/svxlink-dash <<'EOF'
 # SvxLink-Dash-V3 controlled service permissions
 
 svxlink ALL=(root) NOPASSWD: \
-    /usr/bin/systemctl restart svxlink, \
-    /usr/bin/systemctl is-active svxlink, \
+    /usr/bin/systemctl restart svxlink.service, \
+    /usr/bin/systemctl is-active svxlink.service, \
+    /usr/bin/systemctl stop svxlink.service, \
+    /usr/bin/systemctl start svxlink.service, \
+    /usr/bin/systemctl restart svxlink-dash.service, \
+    /usr/bin/systemctl is-active svxlink-dash.service, \
     /usr/sbin/shutdown, \
-    /usr/bin/systemctl, \
-    /usr/bin/nmcli, \
     /usr/bin/mkdir, \
     /usr/bin/chown, \
     /usr/bin/chmod, \
     /usr/bin/git, \
     /usr/bin/systemd-run, \
-    /usr/bin/install
+    /usr/bin/install, \
+    /usr/bin/sh
 EOF
 
 
 chmod 0440 /etc/sudoers.d/svxlink-dash
-visudo -c
+visudo -c -f /etc/sudoers.d/svxlink-dash
 # Wifi install
 # -------------------------------------------------
 # Install network failsafe helper
