@@ -641,19 +641,16 @@ def render_reflector_logic(model):
     monitor_tgs = reflector.get(
         "monitor_tgs",
         []
-    )
+)
 
     if isinstance(monitor_tgs, list):
         monitor_tgs = ",".join(
-            str(x).strip()
-            for x in monitor_tgs
-            if str(x).strip()
-        )
-    else:
-        monitor_tgs = str(monitor_tgs).strip()
+            str(x) for x in monitor_tgs
+    )
 
     if not monitor_tgs:
         monitor_tgs = "0"
+
     return render_config_template(
         "reflector_logic.template",
         {

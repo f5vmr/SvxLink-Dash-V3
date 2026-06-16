@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from pyexpat import model
-
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,12 +8,15 @@ from services.sound_discovery import (
     apply_safe_baseline,
     set_slider_control,
 )
-
+from services.build_svxlink import build_svxlink_configuration
+from services.model_store import (
+    load_node_model,
+    save_node_model,
+)
 from services.svxlink_config_discovery import (
     DEFAULT_SVXLINK_CONFIG,
     discover_audio_sections,
 )
-
 from services.sound_calibration import (
     get_svxlink_service_state,
     stop_svxlink_for_calibration,
@@ -27,18 +28,6 @@ from services.sound_calibration import (
     get_devcal_mode,
     get_devcal_tx_state,
     toggle_devcal_tx,
-)
-
-from services.hardware_profile_service import (
-    list_hardware_profiles,
-    load_hardware_profile,
-)
-
-from services.build_svxlink import build_svxlink_configuration
-
-from services.model_store import (
-    load_node_model,
-    save_node_model,
 )
 
 ## Wifi
@@ -182,15 +171,6 @@ def detect_platform():
         "supported": False,
     }
 # =========================================================
-# Hardware Profiles
-# =========================================================
-@app.route("/hardware-profiles")
-def hardware_profiles():
-    profiles = list_hardware_profiles()
-    return render_template("hardware_profiles.html", profiles=profiles)
-
-
-# =========================================================
 # GPIOD Support
 # =========================================================
 # services/platform_service.py
@@ -317,38 +297,10 @@ def platform_page():
     if request.method == "POST":
         # Platform is normally detected, not user-selected.
         save_node_model(model)
-        return redirect(url_for("hardware_page"))
+        return redirect(url_for("environment_page"))
 
     return render_template("platform.html", model=model)
 
-@app.route("/hardware", methods=["GET", "POST"])
-def hardware_page():
-    model = load_node_model()
-    profiles = list_hardware_profiles()
-
-    if request.method == "POST":
-        hardware_profile_id = request.form.get("hardware_profile_id", "").strip()
-
-        model["hardware_profile_id"] = hardware_profile_id
-        save_node_model(model)
-
-        profile = load_hardware_profile(hardware_profile_id)
-
-        if profile.get("preparation", {}).get("required"):
-            return redirect(url_for("hardware_prepare_page"))
-
-        return redirect(url_for("environment_page"))
-
-    return render_template(
-        "hardware.html",
-        model=model,
-        profiles=profiles,
-    )
-@app.route("/hardware-prepare")
-def hardware_prepare_page():
-    model = load_node_model()
-    return render_template("hardware_prepare.html", model=model)
-  
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()
@@ -1338,7 +1290,6 @@ def status_page():
         system_info=system_info,
         version_info=get_version_info(),
     )
-
 @app.route("/sound-levels", methods=["GET", "POST"])
 def sound_levels_page():
     result = None
@@ -1376,7 +1327,6 @@ def sound_levels_page():
         result=result,
         error=error,
     )
-
 @app.route("/sound-calibration", methods=["GET", "POST"])
 def sound_calibration_page():
     error = None
@@ -1478,6 +1428,7 @@ def sound_calibration_page():
         devcal_output=get_devcal_output(),
         devcal_values=devcal_values,
     )
+
 
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
@@ -1628,14 +1579,9 @@ def monitor_tgs_page():
             model,
             restart=True,
         )
-        
-        print("DEBUG /monitor-tgs build result:", result, flush=True)
-        
+
         if not result.get("success"):
-            error = (
-                "Monitoring talkgroups saved, but SvxLink rebuild/restart failed. "
-                f"{result}"
-            )
+            error = "Monitoring talkgroups saved, but SvxLink rebuild/restart failed."
         else:
             return redirect(url_for("monitor_tgs_page", saved="1"))
 
