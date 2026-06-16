@@ -121,7 +121,18 @@
                     {% endif %}
                     
                 </div>
-            
+                <div class="status-box">
+                    <div class="status-box-title">
+                        Active Talkgroup
+                    </div>
+                
+                    <div
+                        class="status-box-row active-talkgroup {% if status.active_talkgroup == 'Standby' %}active-talkgroup-standby{% else %}active-talkgroup-active{% endif %}"
+                        id="active-talkgroup"
+                    >
+                        {{ status.active_talkgroup }}
+                    </div>
+                </div>
                 <div class="status-box">
                 
                     <div class="status-box-title">
@@ -324,7 +335,18 @@ function updateStatusPage(data) {
     const squelchState = document.getElementById("radio_squelch_state");
     const reflectorState = document.getElementById("reflector_state");
     const activityBody = document.getElementById("activity_body");
-
+    const activeTalkgroup = document.getElementById("active-talkgroup");
+    if (activeTalkgroup && status.active_talkgroup !== undefined) {
+        activeTalkgroup.textContent = status.active_talkgroup;
+        
+        activeTalkgroup.className = "status-box-row active-talkgroup";
+        
+        if (status.active_talkgroup === "Standby") {
+            activeTalkgroup.classList.add("active-talkgroup-standby");
+        } else {
+            activeTalkgroup.classList.add("active-talkgroup-active");
+        }
+    }
     if (radioLabel && status.radio_state) {
         radioLabel.textContent = status.radio_state.label;
         radioLabel.className = "status-box-row " + status.radio_state.class;

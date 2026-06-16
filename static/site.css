@@ -1756,3 +1756,14 @@ footer a:hover {
 .dashboard-container .devcal-action-row button {
     margin: 0;
 }
+.active-talkgroup-standby {
+    background-color: #fff3bf;
+    color: #5f4500;
+    font-weight: 700;
+}
+
+.active-talkgroup-active {
+    background-color: #d3f9d8;
+    color: #14532d;
+    font-weight: 700;
+}
