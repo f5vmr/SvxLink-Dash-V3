@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from pyexpat import model
+
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -1626,13 +1628,16 @@ def monitor_tgs_page():
             model,
             restart=True,
         )
-
+        
+        print("DEBUG /monitor-tgs build result:", result, flush=True)
+        
         if not result.get("success"):
-            print("DEBUG monitor_tgs build result:", result)
             error = (
                 "Monitoring talkgroups saved, but SvxLink rebuild/restart failed. "
-                f"{result.get('error', '')} {result.get('stderr', '')}"
+                f"{result}"
             )
+        else:
+            return redirect(url_for("monitor_tgs_page", saved="1"))
 
     return render_template(
         "monitor_tgs.html",
