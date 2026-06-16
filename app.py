@@ -1579,9 +1579,24 @@ def monitor_tgs_page():
             model,
             restart=True,
         )
-
+        
+        #if not result.get("success"):
+        #    error = "Monitoring talkgroups saved, but SvxLink rebuild/restart failed."
+        #else:
+        #    return redirect(url_for("monitor_tgs_page", saved="1"))
         if not result.get("success"):
-            error = "Monitoring talkgroups saved, but SvxLink rebuild/restart failed."
+            print(
+                "MONITOR_TGS SAVE FAILED:",
+                result.get("validation_errors"),
+                result.get("platform_errors"),
+                result.get("deployment_errors"),
+                flush=True,
+            )
+
+            error = (
+                "Monitoring talkgroups saved, but SvxLink rebuild/restart failed. "
+                + " ".join(result.get("deployment_errors", []))
+            )
         else:
             return redirect(url_for("monitor_tgs_page", saved="1"))
 
