@@ -1628,9 +1628,11 @@ def monitor_tgs_page():
         )
 
         if not result.get("success"):
-            error = "Monitoring talkgroups saved, but SvxLink rebuild/restart failed."
-        else:
-            return redirect(url_for("monitor_tgs_page", saved="1"))
+            print("DEBUG monitor_tgs build result:", result)
+            error = (
+                "Monitoring talkgroups saved, but SvxLink rebuild/restart failed. "
+                f"{result.get('error', '')} {result.get('stderr', '')}"
+            )
 
     return render_template(
         "monitor_tgs.html",
