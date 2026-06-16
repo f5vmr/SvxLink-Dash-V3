@@ -76,6 +76,11 @@ def render_config_template(template_name, values):
     template_text = load_template(template_name)
     rendered = render_template_text(template_text, values)
 
-    assert_no_unresolved_markers(rendered)
+    try:
+        assert_no_unresolved_markers(rendered)
+    except TemplateRenderError as exc:
+        raise TemplateRenderError(
+            f"{template_name}: {exc}"
+        ) from exc
 
     return rendered
