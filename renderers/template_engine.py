@@ -60,13 +60,25 @@ def render_template_text(template_text, values):
 def assert_no_unresolved_markers(rendered_text):
     """
     Prevent accidentally writing config files with unresolved markers.
+    Show exactly which marker was left behind.
     """
+
+    import re
+
+    unresolved = sorted(set(
+        re.findall(r"{{[^{}]+}}", rendered_text)
+    ))
+
+    if unresolved:
+        raise TemplateRenderError(
+            "Rendered template still contains unresolved markers: "
+            + ", ".join(unresolved)
+        )
 
     if "{{" in rendered_text or "}}" in rendered_text:
         raise TemplateRenderError(
-            "Rendered template still contains unresolved markers."
+            "Rendered template still contains malformed template markers."
         )
-
 
 def render_config_template(template_name, values):
     """

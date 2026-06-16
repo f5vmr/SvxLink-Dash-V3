@@ -721,6 +721,7 @@ def render_svxlink_config(model):
     )
 
     values = {
+        "DASHBOARD_NAME": "SvxLink-Dash-V3",
         "LOGIC_CORE_PATH": get_library_path(),
         "LOGICS": logics,
         "LINKS_LINE": links_line,
